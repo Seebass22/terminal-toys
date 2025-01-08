@@ -1,5 +1,5 @@
 [package]
-name = "ratatui-test"
+name = "terminal-balls"
 version = "0.1.0"
 authors = ["Sebastian Thuemmel <sebastianthuemmel@yahoo.ca>"]
 license = "MIT"

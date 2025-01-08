@@ -475,17 +475,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ratatui-test"
-version = "0.1.0"
-dependencies = [
- "color-eyre",
- "crossterm",
- "itertools 0.14.0",
- "oorandom",
- "ratatui",
-]
-
-[[package]]
 name = "redox_syscall"
 version = "0.5.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -625,6 +614,17 @@ dependencies = [
  "proc-macro2",
  "quote",
  "unicode-ident",
+]
+
+[[package]]
+name = "terminal-balls"
+version = "0.1.0"
+dependencies = [
+ "color-eyre",
+ "crossterm",
+ "itertools 0.14.0",
+ "oorandom",
+ "ratatui",
 ]
 
 [[package]]
