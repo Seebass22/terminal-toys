@@ -65,11 +65,12 @@ impl App {
     fn new(terminal_width: u16, terminal_height: u16) -> Self {
         let scale_factor = terminal_height as f32 / terminal_width as f32;
         let font_scale_factor = 2.0;
-        let height = 200.0 * scale_factor * font_scale_factor;
+        let width = 200.0;
+        let height = width * scale_factor * font_scale_factor;
         let first_ball = Ball::new(2.9, 5.0);
         Self {
             exit: false,
-            playground: Rect::new(0, 0, 200, height as u16),
+            playground: Rect::new(0, 0, width as u16, height as u16),
             balls: vec![first_ball],
             tick_count: 0,
             marker: Marker::Braille,
