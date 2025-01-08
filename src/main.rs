@@ -31,12 +31,31 @@ fn main() -> Result<()> {
     app_result
 }
 
-struct App {
-    exit: bool,
-    ball: Circle,
-    playground: Rect,
+struct Ball {
+    circle: Circle,
     vx: f64,
     vy: f64,
+}
+
+impl Ball {
+    fn new(vx: f64, vy: f64) -> Self {
+        Self {
+            circle: Circle {
+                x: 20.0,
+                y: 40.0,
+                radius: 5.0,
+                color: Color::Yellow,
+            },
+            vx,
+            vy,
+        }
+    }
+}
+
+struct App {
+    exit: bool,
+    balls: Vec<Ball>,
+    playground: Rect,
     tick_count: u64,
     marker: Marker,
     debug_text: String,
@@ -47,17 +66,11 @@ impl App {
         let scale_factor = terminal_height as f32 / terminal_width as f32;
         let font_scale_factor = 2.0;
         let height = 200.0 * scale_factor * font_scale_factor;
+        let first_ball = Ball::new(2.9, 5.0);
         Self {
             exit: false,
-            ball: Circle {
-                x: 20.0,
-                y: 40.0,
-                radius: 5.0,
-                color: Color::Yellow,
-            },
             playground: Rect::new(0, 0, 200, height as u16),
-            vx: 2.9,
-            vy: 5.0,
+            balls: vec![first_ball],
             tick_count: 0,
             marker: Marker::Braille,
             debug_text: format!(
@@ -70,6 +83,7 @@ impl App {
     pub fn run(mut self, mut terminal: DefaultTerminal) -> Result<()> {
         let tick_rate = Duration::from_millis(16);
         let mut last_tick = Instant::now();
+        let mut rng = oorandom::Rand64::new(99);
         while !self.exit {
             terminal.draw(|frame| self.draw(frame))?;
             let timeout = tick_rate.saturating_sub(last_tick.elapsed());
@@ -86,6 +100,11 @@ impl App {
             if last_tick.elapsed() >= tick_rate {
                 self.on_tick();
                 last_tick = Instant::now();
+                if self.tick_count % 20 == 0 {
+                    let x = 1.0 + 3.0 * rng.rand_float();
+                    let y = 1.0 + 3.0 * rng.rand_float();
+                    self.balls.push(Ball::new(x, y));
+                }
             }
         }
         Ok(())
@@ -104,25 +123,30 @@ impl App {
 
     fn on_tick(&mut self) {
         self.tick_count += 1;
-        // bounce the ball by flipping the velocity vector
-        let ball = &self.ball;
-        let playground = self.playground;
-        if ball.x - ball.radius < f64::from(playground.left())
-            || ball.x + ball.radius > f64::from(playground.right())
-        {
-            self.vx = -self.vx;
-        }
-        if ball.y - ball.radius < f64::from(playground.top())
-            || ball.y + ball.radius > f64::from(playground.bottom())
-        {
-            self.vy = -self.vy;
-        }
+        for ball in self.balls.iter_mut() {
+            // bounce the ball by flipping the velocity vector
+            let playground = self.playground;
+            if ball.circle.x - ball.circle.radius < f64::from(playground.left())
+                || ball.circle.x + ball.circle.radius > f64::from(playground.right())
+            {
+                ball.vx = -ball.vx;
+            }
+            if ball.circle.y - ball.circle.radius < f64::from(playground.top())
+                || ball.circle.y + ball.circle.radius > f64::from(playground.bottom())
+            {
+                ball.vy = -ball.vy;
+            }
 
-        self.ball.x += self.vx;
-        self.ball.y += self.vy;
-        self.vy -= 0.2;
-        self.vy *= 0.99;
-        self.vx *= 0.999;
+            ball.circle.x += ball.vx;
+            ball.circle.y += ball.vy;
+            ball.vy -= 0.2;
+            ball.vy *= 0.99;
+            ball.vx *= 0.999;
+            if self.tick_count % 100 == 0 {
+                ball.vy *= 2.0;
+                ball.vx *= 1.02;
+            }
+        }
     }
 
     fn draw(&self, frame: &mut Frame) {
@@ -136,7 +160,9 @@ impl App {
             .block(Block::bordered().title("Pong"))
             .marker(self.marker)
             .paint(|ctx| {
-                ctx.draw(&self.ball);
+                for ball in self.balls.iter() {
+                    ctx.draw(&ball.circle);
+                }
             })
             .x_bounds([0.0, self.playground.width as f64])
             .y_bounds([0.0, self.playground.height as f64])
