@@ -25,8 +25,6 @@ fn main() -> Result<()> {
     stdout().execute(EnableMouseCapture)?;
     let terminal = ratatui::init();
     let size = terminal.size().unwrap();
-    // dbg!(size);
-    // return Ok(());
     let app_result = App::new(size.width, size.height).run(terminal);
     ratatui::restore();
     stdout().execute(DisableMouseCapture)?;
@@ -47,7 +45,8 @@ struct App {
 impl App {
     fn new(terminal_width: u16, terminal_height: u16) -> Self {
         let scale_factor = terminal_height as f32 / terminal_width as f32;
-        let height = 200.0 * scale_factor * 2.0;
+        let font_scale_factor = 2.0;
+        let height = 200.0 * scale_factor * font_scale_factor;
         Self {
             exit: false,
             ball: Circle {
@@ -57,8 +56,8 @@ impl App {
                 color: Color::Yellow,
             },
             playground: Rect::new(0, 0, 200, height as u16),
-            vx: 1.9,
-            vy: 2.0,
+            vx: 2.9,
+            vy: 5.0,
             tick_count: 0,
             marker: Marker::Braille,
             debug_text: format!(
@@ -78,11 +77,7 @@ impl App {
                 match event::read()? {
                     Event::Key(key) => self.handle_key_press(key),
                     Event::Resize(columns, rows) => {
-                        // dbg!(columns, rows);
                         self.debug_text = format!("{} {}", columns, rows);
-                        // self.playground.width = columns - 2;
-                        // self.playground.height = rows - 2;
-                        // self.ball.x.clamp(ball.radius, max)
                     }
                     _ => (),
                 }
@@ -125,6 +120,9 @@ impl App {
 
         self.ball.x += self.vx;
         self.ball.y += self.vy;
+        self.vy -= 0.2;
+        self.vy *= 0.99;
+        self.vx *= 0.999;
     }
 
     fn draw(&self, frame: &mut Frame) {
