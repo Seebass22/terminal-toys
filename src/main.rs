@@ -1,18 +1,3 @@
-//! # [Ratatui] Canvas example
-//!
-//! The latest version of this example is available in the [examples] folder in the repository.
-//!
-//! Please note that the examples are designed to be run against the `main` branch of the Github
-//! repository. This means that you may not be able to compile with the latest release version on
-//! crates.io, or the one that you have installed locally.
-//!
-//! See the [examples readme] for more information on finding examples that match the version of the
-//! library you are using.
-//!
-//! [Ratatui]: https://github.com/ratatui/ratatui
-//! [examples]: https://github.com/ratatui/ratatui/blob/main/examples
-//! [examples readme]: https://github.com/ratatui/ratatui/blob/main/examples/README.md
-
 use std::{
     io::stdout,
     time::{Duration, Instant},
@@ -39,7 +24,10 @@ fn main() -> Result<()> {
     color_eyre::install()?;
     stdout().execute(EnableMouseCapture)?;
     let terminal = ratatui::init();
-    let app_result = App::new().run(terminal);
+    let size = terminal.size().unwrap();
+    // dbg!(size);
+    // return Ok(());
+    let app_result = App::new(size.width, size.height).run(terminal);
     ratatui::restore();
     stdout().execute(DisableMouseCapture)?;
     app_result
@@ -57,21 +45,26 @@ struct App {
 }
 
 impl App {
-    fn new() -> Self {
+    fn new(terminal_width: u16, terminal_height: u16) -> Self {
+        let scale_factor = terminal_height as f32 / terminal_width as f32;
+        let height = 200.0 * scale_factor * 2.0;
         Self {
             exit: false,
             ball: Circle {
                 x: 20.0,
                 y: 40.0,
-                radius: 2.0,
+                radius: 5.0,
                 color: Color::Yellow,
             },
-            playground: Rect::new(0, 0, 200, 100),
-            vx: 3.0,
-            vy: 3.0,
+            playground: Rect::new(0, 0, 200, height as u16),
+            vx: 1.9,
+            vy: 2.0,
             tick_count: 0,
-            marker: Marker::Dot,
-            debug_text: String::from("test"),
+            marker: Marker::Braille,
+            debug_text: format!(
+                "{} {} {} {}",
+                terminal_width, terminal_height, height, height as u16
+            ),
         }
     }
 
@@ -87,8 +80,8 @@ impl App {
                     Event::Resize(columns, rows) => {
                         // dbg!(columns, rows);
                         self.debug_text = format!("{} {}", columns, rows);
-                        self.playground.width = columns - 2;
-                        self.playground.height = rows - 2;
+                        // self.playground.width = columns - 2;
+                        // self.playground.height = rows - 2;
                         // self.ball.x.clamp(ball.radius, max)
                     }
                     _ => (),
@@ -109,22 +102,13 @@ impl App {
         }
         match key.code {
             KeyCode::Char('q') => self.exit = true,
+            KeyCode::Char('Q') => self.exit = true,
             _ => (),
         }
     }
 
     fn on_tick(&mut self) {
         self.tick_count += 1;
-        // only change marker every 180 ticks (3s) to avoid stroboscopic effect
-        if (self.tick_count % 180) == 0 {
-            self.marker = match self.marker {
-                Marker::Dot => Marker::Braille,
-                Marker::Braille => Marker::Block,
-                Marker::Block => Marker::HalfBlock,
-                Marker::HalfBlock => Marker::Bar,
-                Marker::Bar => Marker::Dot,
-            };
-        }
         // bounce the ball by flipping the velocity vector
         let ball = &self.ball;
         let playground = self.playground;
@@ -141,13 +125,6 @@ impl App {
 
         self.ball.x += self.vx;
         self.ball.y += self.vy;
-    }
-
-    fn ball_out_of_bounds(ball: Circle, playground: Rect) -> bool {
-        return ball.x - ball.radius < f64::from(playground.left())
-            || ball.x + ball.radius > f64::from(playground.right())
-            || ball.y - ball.radius < f64::from(playground.top())
-            || ball.y + ball.radius > f64::from(playground.bottom());
     }
 
     fn draw(&self, frame: &mut Frame) {
