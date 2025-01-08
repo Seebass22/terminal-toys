@@ -15,7 +15,7 @@ use ratatui::{
     symbols::Marker,
     widgets::{
         canvas::{Canvas, Circle},
-        Block, Paragraph, Widget,
+        Paragraph, Widget,
     },
     DefaultTerminal, Frame,
 };
@@ -74,10 +74,7 @@ impl App {
             balls: vec![first_ball],
             tick_count: 0,
             marker: Marker::Braille,
-            debug_text: format!(
-                "{} {} {} {}",
-                terminal_width, terminal_height, height, height as u16
-            ),
+            debug_text: String::new(),
         }
     }
 
@@ -91,8 +88,8 @@ impl App {
             if event::poll(timeout)? {
                 match event::read()? {
                     Event::Key(key) => self.handle_key_press(key),
-                    Event::Resize(columns, rows) => {
-                        self.debug_text = format!("{} {}", columns, rows);
+                    Event::Resize(_columns, _rows) => {
+                        // self.debug_text = format!("{} {}", columns, rows);
                     }
                     _ => (),
                 }
@@ -158,14 +155,19 @@ impl App {
 
     fn pong_canvas(&self) -> impl Widget + '_ {
         Canvas::default()
-            .block(Block::bordered().title("Pong"))
             .marker(self.marker)
             .paint(|ctx| {
                 for ball in self.balls.iter() {
                     ctx.draw(&ball.circle);
                 }
             })
-            .x_bounds([0.0, self.playground.width as f64])
-            .y_bounds([0.0, self.playground.height as f64])
+            .x_bounds([
+                self.playground.left() as f64,
+                self.playground.right() as f64,
+            ])
+            .y_bounds([
+                self.playground.top() as f64,
+                self.playground.bottom() as f64,
+            ])
     }
 }
