@@ -129,9 +129,7 @@ impl App {
             {
                 ball.vx = -ball.vx;
             }
-            if ball.circle.y - ball.circle.radius < f64::from(playground.top())
-                || ball.circle.y + ball.circle.radius > f64::from(playground.bottom())
-            {
+            if ball.circle.y - ball.circle.radius < f64::from(playground.top()) {
                 ball.vy = -ball.vy;
             }
 
