@@ -39,12 +39,14 @@ pub struct App {
     balls: Vec<Ball>,
     playground: Rect,
     tick_count: u64,
-    marker: Marker,
+    ball_count: u16,
     debug_text: String,
+    marker: Marker,
+    max_balls: u16,
 }
 
 impl App {
-    pub fn new(terminal_width: u16, terminal_height: u16, marker: Marker) -> Self {
+    pub fn new(terminal_width: u16, terminal_height: u16, marker: Marker, max_balls: u16) -> Self {
         let scale_factor = terminal_height as f32 / terminal_width as f32;
         let font_scale_factor = 2.0;
         let width = 200.0;
@@ -55,8 +57,10 @@ impl App {
             playground: Rect::new(0, 0, width as u16, height as u16),
             balls: vec![first_ball],
             tick_count: 0,
+            ball_count: 1,
             marker,
             debug_text: String::new(),
+            max_balls,
         }
     }
 
@@ -80,9 +84,11 @@ impl App {
             if last_tick.elapsed() >= tick_rate {
                 self.on_tick();
                 last_tick = Instant::now();
-                if self.tick_count % 20 == 0 {
+                if self.tick_count % 20 == 0 && self.ball_count < self.max_balls {
                     let x = 1.0 + 3.0 * rng.rand_float();
                     let y = 1.0 + 3.0 * rng.rand_float();
+                    self.ball_count += 1;
+                    // self.debug_text = format!("{}", self.ball_count);
                     self.balls.push(Ball::new(x, y));
                 }
             }
@@ -128,9 +134,11 @@ impl App {
     }
 
     fn draw(&self, frame: &mut Frame) {
-        let debug_text = Paragraph::new(self.debug_text.clone());
         frame.render_widget(self.canvas(), frame.area());
-        frame.render_widget(debug_text, frame.area());
+        if !self.debug_text.is_empty() {
+            let debug_text = Paragraph::new(self.debug_text.clone());
+            frame.render_widget(debug_text, frame.area());
+        }
     }
 
     fn canvas(&self) -> impl Widget + '_ {
