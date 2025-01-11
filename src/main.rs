@@ -1,13 +1,7 @@
-use std::{
-    io::stdout,
-    time::{Duration, Instant},
-};
+use std::time::{Duration, Instant};
 
 use color_eyre::Result;
-use crossterm::{
-    event::{DisableMouseCapture, EnableMouseCapture, KeyEventKind},
-    ExecutableCommand,
-};
+use crossterm::event::KeyEventKind;
 use ratatui::{
     crossterm::event::{self, Event, KeyCode},
     layout::Rect,
@@ -22,12 +16,10 @@ use ratatui::{
 
 fn main() -> Result<()> {
     color_eyre::install()?;
-    stdout().execute(EnableMouseCapture)?;
     let terminal = ratatui::init();
     let size = terminal.size().unwrap();
     let app_result = App::new(size.width, size.height).run(terminal);
     ratatui::restore();
-    stdout().execute(DisableMouseCapture)?;
     app_result
 }
 
@@ -122,13 +114,13 @@ impl App {
     fn on_tick(&mut self) {
         self.tick_count += 1;
         for ball in self.balls.iter_mut() {
-            // bounce the ball by flipping the velocity vector
             let playground = self.playground;
             if ball.circle.x - ball.circle.radius < f64::from(playground.left())
                 || ball.circle.x + ball.circle.radius > f64::from(playground.right())
             {
                 ball.vx = -ball.vx;
             }
+            // no top barrier
             if ball.circle.y - ball.circle.radius < f64::from(playground.top()) {
                 ball.vy = -ball.vy;
             }
@@ -146,12 +138,12 @@ impl App {
     }
 
     fn draw(&self, frame: &mut Frame) {
-        let greeting = Paragraph::new(self.debug_text.clone());
-        frame.render_widget(self.pong_canvas(), frame.area());
-        frame.render_widget(greeting, frame.area());
+        let debug_text = Paragraph::new(self.debug_text.clone());
+        frame.render_widget(self.canvas(), frame.area());
+        frame.render_widget(debug_text, frame.area());
     }
 
-    fn pong_canvas(&self) -> impl Widget + '_ {
+    fn canvas(&self) -> impl Widget + '_ {
         Canvas::default()
             .marker(self.marker)
             .paint(|ctx| {
