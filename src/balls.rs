@@ -44,7 +44,7 @@ pub struct App {
 }
 
 impl App {
-    pub fn new(terminal_width: u16, terminal_height: u16) -> Self {
+    pub fn new(terminal_width: u16, terminal_height: u16, marker: Marker) -> Self {
         let scale_factor = terminal_height as f32 / terminal_width as f32;
         let font_scale_factor = 2.0;
         let width = 200.0;
@@ -55,7 +55,7 @@ impl App {
             playground: Rect::new(0, 0, width as u16, height as u16),
             balls: vec![first_ball],
             tick_count: 0,
-            marker: Marker::Braille,
+            marker,
             debug_text: String::new(),
         }
     }
