@@ -125,10 +125,8 @@ impl App {
             ball.circle.y += ball.vy;
             ball.vy -= 0.2;
             ball.vy *= 0.99;
-            ball.vx *= 0.999;
             if self.tick_count % 100 == 0 {
                 ball.vy *= 2.0;
-                ball.vx *= 1.02;
             }
         }
     }
