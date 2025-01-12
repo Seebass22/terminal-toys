@@ -1,5 +1,6 @@
 use color_eyre::Result;
 use crossterm::event::KeyEventKind;
+use glam::{DVec2, DVec3};
 use ratatui::{
     crossterm::event::{self, Event, KeyCode},
     layout::Rect,
@@ -13,60 +14,16 @@ use ratatui::{
 };
 use std::time::{Duration, Instant};
 
-#[derive(Clone, Copy, Debug, Default)]
-struct Vec3 {
-    x: f64,
-    y: f64,
-    z: f64,
-}
-impl Vec3 {
-    fn new(x: f64, y: f64, z: f64) -> Self {
-        Self { x, y, z }
-    }
-}
-impl std::ops::Sub for Vec3 {
-    type Output = Vec3;
-    fn sub(self, rhs: Self) -> Self::Output {
-        Self {
-            x: self.x - rhs.x,
-            y: self.y - rhs.y,
-            z: self.z - rhs.z,
-        }
-    }
-}
-impl std::ops::Add for Vec3 {
-    type Output = Vec3;
-    fn add(self, rhs: Self) -> Self::Output {
-        Self {
-            x: self.x + rhs.x,
-            y: self.y + rhs.y,
-            z: self.z + rhs.z,
-        }
-    }
-}
-impl std::ops::Mul<f64> for Vec3 {
-    type Output = Vec3;
-    fn mul(self, rhs: f64) -> Self::Output {
-        Self {
-            x: self.x * rhs,
-            y: self.y * rhs,
-            z: self.z * rhs,
-        }
-    }
-}
-#[derive(Clone, Copy, Debug)]
-struct Vec2 {
-    x: f64,
-    y: f64,
+trait ToScreenPos {
+    fn to_screen_position(self, playgrground: Rect, val: f64) -> DVec2;
 }
 
-impl Vec3 {
-    fn to_screen_position(self, playground: Rect, val: f64) -> Vec2 {
-        // let z = self.z + 100.0;
+impl ToScreenPos for DVec3 {
+    fn to_screen_position(self, playground: Rect, val: f64) -> DVec2 {
         let z = self.z + 10.0;
         let x = (self.x) / (val * z);
         let y = (self.y) / (val * z);
-        Vec2 {
+        DVec2 {
             x: x + playground.right() as f64 * 0.5,
             y: y + playground.bottom() as f64 * 0.5,
         }
@@ -75,11 +32,11 @@ impl Vec3 {
 
 pub struct App {
     exit: bool,
-    points: Vec<Vec3>,
+    points: Vec<DVec3>,
     playground: Rect,
     tick_count: u64,
     point_count: u16,
-    camera_position: Vec3,
+    camera_position: DVec3,
     previous_index: usize,
     debug_text: String,
     marker: Marker,
@@ -99,7 +56,7 @@ impl App {
             points: Vec::new(),
             tick_count: 0,
             point_count: 0,
-            camera_position: Vec3 {
+            camera_position: DVec3 {
                 x: 0.0,
                 y: 0.0,
                 z: 0.0,
@@ -116,7 +73,7 @@ impl App {
         let tick_rate = Duration::from_millis(16);
         let mut last_tick = Instant::now();
         let mut rng = oorandom::Rand32::new(99);
-        let mut current_point = Vec3 {
+        let mut current_point = DVec3 {
             x: 0.0,
             y: 0.0,
             z: 0.0,
@@ -136,12 +93,12 @@ impl App {
 
             if last_tick.elapsed() >= tick_rate {
                 let last_point = if self.points.is_empty() {
-                    Vec3::default()
+                    DVec3::default()
                 } else {
                     *self.points.last().unwrap()
                 };
                 let direction = last_point - self.camera_position;
-                self.camera_position = self.camera_position + direction * 0.01;
+                self.camera_position += direction * 0.01;
                 // if !self.points.is_empty() {
                 //     self.debug_text = format!("{}", color_index);
                 // }
@@ -151,16 +108,16 @@ impl App {
                 if self.tick_count % 2 == 0 && self.point_count < self.max_segments {
                     self.points.push(current_point);
                     let unit_vectors = [
-                        Vec3::new(1.0, 0.0, 0.0),
-                        Vec3::new(0.0, 1.0, 0.0),
-                        Vec3::new(0.0, 0.0, 1.0),
-                        Vec3::new(-1.0, 0.0, 0.0),
-                        Vec3::new(0.0, -1.0, 0.0),
-                        Vec3::new(0.0, 0.0, -1.0),
+                        DVec3::new(1.0, 0.0, 0.0),
+                        DVec3::new(0.0, 1.0, 0.0),
+                        DVec3::new(0.0, 0.0, 1.0),
+                        DVec3::new(-1.0, 0.0, 0.0),
+                        DVec3::new(0.0, -1.0, 0.0),
+                        DVec3::new(0.0, 0.0, -1.0),
                     ];
                     let n = (self.previous_index + 3 + rng.rand_range(1..5) as usize) % 6;
                     self.previous_index = n;
-                    current_point = current_point + unit_vectors[n];
+                    current_point += unit_vectors[n];
                     self.point_count += 1;
                 }
             }
@@ -198,7 +155,7 @@ impl App {
             .marker(self.marker)
             .paint(|ctx| {
                 for (i, win) in self.points.windows(2).enumerate() {
-                    let mut line_points: [Vec2; 2] = [Vec2 { x: 0.0, y: 0.0 }; 2];
+                    let mut line_points: [DVec2; 2] = [DVec2::ZERO; 2];
                     let index_f = i as f64 * 0.1;
                     let color_index = ((index_f as u64 % 7) + 1) as u8;
                     for (i, point) in win.iter().enumerate() {

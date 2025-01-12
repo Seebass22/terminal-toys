@@ -9,6 +9,7 @@ edition = "2021"
 clap = { version = "4.5.26", features = ["derive"] }
 color-eyre = "0.6.3"
 crossterm = "0.28.1"
+glam = "0.29.2"
 itertools = "0.14.0"
 oorandom = "11.1.4"
 ratatui = "0.29.0"
