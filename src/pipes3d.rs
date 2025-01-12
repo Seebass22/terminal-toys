@@ -154,12 +154,15 @@ impl App {
         Canvas::default()
             .marker(self.marker)
             .paint(|ctx| {
-                for (i, win) in self.points.windows(2).enumerate() {
+                'outer: for (i, win) in self.points.windows(2).enumerate() {
                     let mut line_points: [DVec2; 2] = [DVec2::ZERO; 2];
                     let index_f = i as f64 * 0.1;
                     let color_index = ((index_f as u64 % 7) + 1) as u8;
                     for (i, point) in win.iter().enumerate() {
                         let modified_point = *point - self.camera_position;
+                        if modified_point.z < -9.0 {
+                            continue 'outer;
+                        }
                         line_points[i] =
                             modified_point.to_screen_position(self.playground, self.val);
                     }
