@@ -19,6 +19,11 @@ struct Vec3 {
     y: f64,
     z: f64,
 }
+impl Vec3 {
+    fn new(x: f64, y: f64, z: f64) -> Self {
+        Self { x, y, z }
+    }
+}
 impl std::ops::Sub for Vec3 {
     type Output = Vec3;
     fn sub(self, rhs: Self) -> Self::Output {
@@ -75,6 +80,7 @@ pub struct App {
     tick_count: u64,
     point_count: u16,
     camera_position: Vec3,
+    previous_index: usize,
     debug_text: String,
     marker: Marker,
     max_segments: u16,
@@ -100,6 +106,7 @@ impl App {
             },
             marker,
             debug_text: String::new(),
+            previous_index: 0,
             max_segments: 50000,
             val: 0.01,
         }
@@ -143,16 +150,17 @@ impl App {
                 last_tick = Instant::now();
                 if self.tick_count % 2 == 0 && self.point_count < self.max_segments {
                     self.points.push(current_point);
-                    match rng.rand_range(0..6) {
-                        0 => current_point.x += 1.0,
-                        1 => current_point.y += 1.0,
-                        2 => current_point.z += 1.0,
-                        3 => current_point.x -= 1.0,
-                        4 => current_point.y -= 1.0,
-                        5 => current_point.z -= 1.0,
-                        _ => panic!(),
-                    }
-
+                    let unit_vectors = [
+                        Vec3::new(1.0, 0.0, 0.0),
+                        Vec3::new(0.0, 1.0, 0.0),
+                        Vec3::new(0.0, 0.0, 1.0),
+                        Vec3::new(-1.0, 0.0, 0.0),
+                        Vec3::new(0.0, -1.0, 0.0),
+                        Vec3::new(0.0, 0.0, -1.0),
+                    ];
+                    let n = (self.previous_index + 3 + rng.rand_range(1..5) as usize) % 6;
+                    self.previous_index = n;
+                    current_point = current_point + unit_vectors[n];
                     self.point_count += 1;
                 }
             }
