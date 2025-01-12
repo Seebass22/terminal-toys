@@ -1,19 +1,35 @@
 mod balls;
+mod pipes3d;
 
 use color_eyre::Result;
 
-use clap::Parser;
+use clap::{Parser, Subcommand};
 use ratatui::symbols::Marker;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Cli {
-    /// Marker type (Braille, Dot, Bar, Block, HalfBlock)
-    #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
-    marker: Marker,
+    #[command(subcommand)]
+    command: Option<Commands>,
+}
 
-    #[arg(short = 'n', long, value_name = "BALLS", default_value_t = 50)]
-    max_balls: u16,
+#[derive(Subcommand, Debug)]
+enum Commands {
+    /// Bouncy balls!
+    Balls {
+        /// Marker type (Braille, Dot, Bar, Block, HalfBlock)
+        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
+        marker: Marker,
+
+        #[arg(short = 'n', long, value_name = "BALLS", default_value_t = 50)]
+        max_balls: u16,
+    },
+    /// 3d pipe screensaver
+    Pipes3d {
+        /// Marker type (Braille, Dot, Bar, Block, HalfBlock)
+        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
+        marker: Marker,
+    },
 }
 
 fn main() -> Result<()> {
@@ -21,8 +37,15 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
     let terminal = ratatui::init();
     let size = terminal.size().unwrap();
-    let app_result =
-        balls::App::new(size.width, size.height, cli.marker, cli.max_balls).run(terminal);
+    let app_result = match &cli.command {
+        Some(Commands::Balls { marker, max_balls }) => {
+            balls::App::new(size.width, size.height, *marker, *max_balls).run(terminal)
+        }
+        Some(Commands::Pipes3d { marker }) => {
+            pipes3d::App::new(size.width, size.height, *marker).run(terminal)
+        }
+        _ => Ok(()),
+    };
     ratatui::restore();
     app_result
 }
