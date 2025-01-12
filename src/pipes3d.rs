@@ -135,7 +135,10 @@ impl App {
                 };
                 let direction = last_point - self.camera_position;
                 self.camera_position = self.camera_position + direction * 0.01;
-                // self.debug_text = format!("{}, {:?}", self.val, self.points);
+                // if !self.points.is_empty() {
+                //     self.debug_text = format!("{}", color_index);
+                // }
+
                 self.on_tick();
                 last_tick = Instant::now();
                 if self.tick_count % 2 == 0 && self.point_count < self.max_segments {
@@ -186,28 +189,20 @@ impl App {
         Canvas::default()
             .marker(self.marker)
             .paint(|ctx| {
-                for win in self.points.windows(2) {
+                for (i, win) in self.points.windows(2).enumerate() {
                     let mut line_points: [Vec2; 2] = [Vec2 { x: 0.0, y: 0.0 }; 2];
-
+                    let index_f = i as f64 * 0.1;
+                    let color_index = ((index_f as u64 % 7) + 1) as u8;
                     for (i, point) in win.iter().enumerate() {
                         let modified_point = *point - self.camera_position;
-                        // modified_point -= model.camera_pos;
                         line_points[i] =
                             modified_point.to_screen_position(self.playground, self.val);
                     }
 
                     let p0 = line_points[0];
                     let p1 = line_points[1];
-                    let line = Line::new(p0.x, p0.y, p1.x, p1.y, Color::Blue);
+                    let line = Line::new(p0.x, p0.y, p1.x, p1.y, Color::Indexed(color_index));
                     ctx.draw(&line);
-                    // let line = Line::new(
-                    //     self.playground.left() as f64,
-                    //     self.playground.top() as f64,
-                    //     self.playground.right() as f64,
-                    //     self.playground.bottom() as f64,
-                    //     Color::Blue,
-                    // );
-                    // ctx.draw(&line);
                 }
             })
             .x_bounds([
