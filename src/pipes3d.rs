@@ -13,11 +13,41 @@ use ratatui::{
 };
 use std::time::{Duration, Instant};
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Default)]
 struct Vec3 {
     x: f64,
     y: f64,
     z: f64,
+}
+impl std::ops::Sub for Vec3 {
+    type Output = Vec3;
+    fn sub(self, rhs: Self) -> Self::Output {
+        Self {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
+        }
+    }
+}
+impl std::ops::Add for Vec3 {
+    type Output = Vec3;
+    fn add(self, rhs: Self) -> Self::Output {
+        Self {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+            z: self.z + rhs.z,
+        }
+    }
+}
+impl std::ops::Mul<f64> for Vec3 {
+    type Output = Vec3;
+    fn mul(self, rhs: f64) -> Self::Output {
+        Self {
+            x: self.x * rhs,
+            y: self.y * rhs,
+            z: self.z * rhs,
+        }
+    }
 }
 #[derive(Clone, Copy, Debug)]
 struct Vec2 {
@@ -44,9 +74,10 @@ pub struct App {
     playground: Rect,
     tick_count: u64,
     point_count: u16,
+    camera_position: Vec3,
     debug_text: String,
     marker: Marker,
-    max_balls: u16,
+    max_segments: u16,
     val: f64,
 }
 
@@ -62,9 +93,14 @@ impl App {
             points: Vec::new(),
             tick_count: 0,
             point_count: 0,
+            camera_position: Vec3 {
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+            },
             marker,
             debug_text: String::new(),
-            max_balls: 500,
+            max_segments: 50000,
             val: 0.01,
         }
     }
@@ -73,15 +109,6 @@ impl App {
         let tick_rate = Duration::from_millis(16);
         let mut last_tick = Instant::now();
         let mut rng = oorandom::Rand32::new(99);
-        // let p = Vec3 {
-        //     x: 1.0,
-        //     y: 0.0,
-        //     z: 0.0,
-        // };
-        // let v2 = p.to_screen_position(self.playground);
-        // self.debug_text = format!("{:?}", v2);
-        // self.debug_text = format!("{} {}", self.playground.right(), self.playground.bottom());
-
         let mut current_point = Vec3 {
             x: 0.0,
             y: 0.0,
@@ -101,12 +128,18 @@ impl App {
             }
 
             if last_tick.elapsed() >= tick_rate {
-                self.debug_text = format!("{}, {:?}", self.val, self.points);
+                let last_point = if self.points.is_empty() {
+                    Vec3::default()
+                } else {
+                    *self.points.last().unwrap()
+                };
+                let direction = last_point - self.camera_position;
+                self.camera_position = self.camera_position + direction * 0.01;
+                // self.debug_text = format!("{}, {:?}", self.val, self.points);
                 self.on_tick();
                 last_tick = Instant::now();
-                if self.tick_count % 20 == 0 && self.point_count < self.max_balls {
+                if self.tick_count % 2 == 0 && self.point_count < self.max_segments {
                     self.points.push(current_point);
-                    // match self.point_count % 3 {
                     match rng.rand_range(0..6) {
                         0 => current_point.x += 1.0,
                         1 => current_point.y += 1.0,
@@ -118,7 +151,6 @@ impl App {
                     }
 
                     self.point_count += 1;
-                    // self.debug_text = format!("{}", self.point_count);
                 }
             }
         }
@@ -158,7 +190,7 @@ impl App {
                     let mut line_points: [Vec2; 2] = [Vec2 { x: 0.0, y: 0.0 }; 2];
 
                     for (i, point) in win.iter().enumerate() {
-                        let modified_point = *point;
+                        let modified_point = *point - self.camera_position;
                         // modified_point -= model.camera_pos;
                         line_points[i] =
                             modified_point.to_screen_position(self.playground, self.val);
