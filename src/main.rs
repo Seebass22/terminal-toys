@@ -10,7 +10,7 @@ use ratatui::symbols::Marker;
 #[command(version, about, long_about = None)]
 struct Cli {
     #[command(subcommand)]
-    command: Option<Commands>,
+    command: Commands,
 }
 
 #[derive(Subcommand, Debug)]
@@ -38,13 +38,12 @@ fn main() -> Result<()> {
     let terminal = ratatui::init();
     let size = terminal.size().unwrap();
     let app_result = match &cli.command {
-        Some(Commands::Balls { marker, max_balls }) => {
+        Commands::Balls { marker, max_balls } => {
             balls::App::new(size.width, size.height, *marker, *max_balls).run(terminal)
         }
-        Some(Commands::Pipes3d { marker }) => {
+        Commands::Pipes3d { marker } => {
             pipes3d::App::new(size.width, size.height, *marker).run(terminal)
         }
-        _ => Ok(()),
     };
     ratatui::restore();
     app_result
