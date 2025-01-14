@@ -35,17 +35,21 @@ pub struct App {
     points: Vec<DVec3>,
     playground: Rect,
     tick_count: u64,
-    point_count: u16,
     camera_position: DVec3,
     previous_index: usize,
     debug_text: String,
     marker: Marker,
-    max_segments: u16,
+    max_segments: u32,
     val: f64,
 }
 
 impl App {
-    pub fn new(terminal_width: u16, terminal_height: u16, marker: Marker) -> Self {
+    pub fn new(
+        terminal_width: u16,
+        terminal_height: u16,
+        marker: Marker,
+        max_segments: u32,
+    ) -> Self {
         let scale_factor = terminal_height as f32 / terminal_width as f32;
         let font_scale_factor = 2.0;
         let width = 200.0;
@@ -53,9 +57,8 @@ impl App {
         Self {
             exit: false,
             playground: Rect::new(0, 0, width as u16, height as u16),
-            points: Vec::new(),
+            points: Vec::with_capacity(max_segments as usize),
             tick_count: 0,
-            point_count: 0,
             camera_position: DVec3 {
                 x: 0.0,
                 y: 0.0,
@@ -64,15 +67,15 @@ impl App {
             marker,
             debug_text: String::new(),
             previous_index: 0,
-            max_segments: 50000,
+            max_segments,
             val: 0.01,
         }
     }
 
-    pub fn run(mut self, mut terminal: DefaultTerminal) -> Result<()> {
-        let tick_rate = Duration::from_millis(16);
+    pub fn run(mut self, mut terminal: DefaultTerminal, tick_rate: u64, seed: u64) -> Result<()> {
+        let tick_rate = Duration::from_millis(tick_rate);
         let mut last_tick = Instant::now();
-        let mut rng = oorandom::Rand32::new(99);
+        let mut rng = oorandom::Rand32::new(seed);
         let mut current_point = DVec3 {
             x: 0.0,
             y: 0.0,
@@ -99,13 +102,9 @@ impl App {
                 };
                 let direction = last_point - self.camera_position;
                 self.camera_position += direction * 0.01;
-                // if !self.points.is_empty() {
-                //     self.debug_text = format!("{}", color_index);
-                // }
-
                 self.on_tick();
                 last_tick = Instant::now();
-                if self.tick_count % 2 == 0 && self.point_count < self.max_segments {
+                if self.tick_count % 2 == 0 && (self.points.len() as u32) < self.max_segments {
                     self.points.push(current_point);
                     let unit_vectors = [
                         DVec3::new(1.0, 0.0, 0.0),
@@ -118,7 +117,6 @@ impl App {
                     let n = (self.previous_index + 3 + rng.rand_range(1..5) as usize) % 6;
                     self.previous_index = n;
                     current_point += unit_vectors[n];
-                    self.point_count += 1;
                 }
             }
         }

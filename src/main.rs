@@ -29,6 +29,15 @@ enum Commands {
         /// Marker type (Braille, Dot, Bar, Block, HalfBlock)
         #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
         marker: Marker,
+
+        #[arg(short = 'n', long, value_name = "SEGMENTS", default_value_t = 20000)]
+        max_segments: u32,
+
+        #[arg(short, long, value_name = "MILLISECONDS", default_value_t = 8)]
+        tick_rate: u64,
+
+        #[arg(short, long, value_name = "SEED", default_value_t = 99)]
+        seed: u64,
     },
 }
 
@@ -41,9 +50,13 @@ fn main() -> Result<()> {
         Commands::Balls { marker, max_balls } => {
             balls::App::new(size.width, size.height, *marker, *max_balls).run(terminal)
         }
-        Commands::Pipes3d { marker } => {
-            pipes3d::App::new(size.width, size.height, *marker).run(terminal)
-        }
+        Commands::Pipes3d {
+            marker,
+            max_segments,
+            tick_rate,
+            seed,
+        } => pipes3d::App::new(size.width, size.height, *marker, *max_segments)
+            .run(terminal, *tick_rate, *seed),
     };
     ratatui::restore();
     app_result
