@@ -95,6 +95,9 @@ impl App {
             }
 
             if last_tick.elapsed() >= tick_rate {
+                if self.points.len() as u32 >= self.max_segments {
+                    self.reset();
+                }
                 let last_point = if self.points.is_empty() {
                     DVec3::default()
                 } else {
@@ -121,6 +124,10 @@ impl App {
             }
         }
         Ok(())
+    }
+
+    fn reset(&mut self) {
+        self.points.clear();
     }
 
     fn handle_key_press(&mut self, key: event::KeyEvent) {
