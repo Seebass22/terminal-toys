@@ -38,6 +38,9 @@ enum Commands {
 
         #[arg(short, long, value_name = "SEED", default_value_t = 99)]
         seed: u64,
+
+        #[arg(short, long, default_value_t = false)]
+        orthographic: bool,
     },
 }
 
@@ -55,8 +58,15 @@ fn main() -> Result<()> {
             max_segments,
             tick_rate,
             seed,
-        } => pipes3d::App::new(size.width, size.height, *marker, *max_segments)
-            .run(terminal, *tick_rate, *seed),
+            orthographic,
+        } => pipes3d::App::new(
+            size.width,
+            size.height,
+            *marker,
+            *max_segments,
+            *orthographic,
+        )
+        .run(terminal, *tick_rate, *seed),
     };
     ratatui::restore();
     app_result

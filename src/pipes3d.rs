@@ -16,6 +16,7 @@ use std::time::{Duration, Instant};
 
 trait ToScreenPos {
     fn to_screen_position(self, playgrground: Rect, val: f64) -> DVec2;
+    fn to_screen_position_orthographic(self, playgrground: Rect) -> DVec2;
 }
 
 impl ToScreenPos for DVec3 {
@@ -23,6 +24,17 @@ impl ToScreenPos for DVec3 {
         let z = self.z + 10.0;
         let x = (self.x) / (val * z);
         let y = (self.y) / (val * z);
+
+        DVec2 {
+            x: x + playground.right() as f64 * 0.5,
+            y: y + playground.bottom() as f64 * 0.5,
+        }
+    }
+
+    fn to_screen_position_orthographic(self, playground: Rect) -> DVec2 {
+        let x = 20.0 * self.x + 0.4 * self.z * 20.0;
+        let y = 20.0 * self.y + 0.4 * self.z * 20.0;
+
         DVec2 {
             x: x + playground.right() as f64 * 0.5,
             y: y + playground.bottom() as f64 * 0.5,
@@ -40,6 +52,7 @@ pub struct App {
     debug_text: String,
     marker: Marker,
     max_segments: u32,
+    orthographic: bool,
     val: f64,
 }
 
@@ -49,6 +62,7 @@ impl App {
         terminal_height: u16,
         marker: Marker,
         max_segments: u32,
+        orthographic: bool,
     ) -> Self {
         let scale_factor = terminal_height as f32 / terminal_width as f32;
         let font_scale_factor = 2.0;
@@ -68,6 +82,7 @@ impl App {
             debug_text: String::new(),
             previous_index: 0,
             max_segments,
+            orthographic,
             val: 0.01,
         }
     }
@@ -168,8 +183,13 @@ impl App {
                         if modified_point.z < -9.0 {
                             continue 'outer;
                         }
-                        line_points[i] =
-                            modified_point.to_screen_position(self.playground, self.val);
+                        if self.orthographic {
+                            line_points[i] =
+                                modified_point.to_screen_position_orthographic(self.playground);
+                        } else {
+                            line_points[i] =
+                                modified_point.to_screen_position(self.playground, self.val);
+                        }
                     }
 
                     let p0 = line_points[0];
