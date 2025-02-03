@@ -50,19 +50,11 @@ impl App {
         let font_scale_factor = 2.0;
         let width = 200.0;
         let height = width * scale_factor * font_scale_factor;
-        let first_walker = Walker {
-            history: Vec::new(),
-            location: DVec2::new(10.0, 0.0),
-            direction: DVec2::new(0.0, 0.7),
-            active: true,
-            split_len: 5,
-            color_index: 1,
-        };
         let rng = oorandom::Rand64::new(seed);
         Self {
             exit: false,
             playground: Rect::new(0, 0, width as u16, height as u16),
-            walkers: vec![first_walker],
+            walkers: Vec::new(),
             ticks_since_stopped: 0,
             marker,
             debug_text: String::new(),
@@ -129,6 +121,9 @@ impl App {
                     split_walker.direction = DVec2::new(-dir.y, dir.x);
                     split_walker.split_len = self.rng.rand_range(20..70) as usize;
                     split_walker.color_index = (split_walker.color_index + 1) % 12;
+                    if split_walker.color_index == 0 {
+                        split_walker.color_index += 1;
+                    }
                     self.walkers.push(split_walker);
                 }
             }
@@ -157,7 +152,7 @@ impl App {
             direction,
             active: true,
             split_len: 5,
-            color_index: 1,
+            color_index: self.rng.rand_range(1..11) as u8,
         };
         self.walkers.push(first_walker);
     }
