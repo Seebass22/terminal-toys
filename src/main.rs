@@ -1,5 +1,6 @@
 mod balls;
 mod pipes3d;
+mod splits;
 
 use color_eyre::Result;
 
@@ -42,6 +43,12 @@ enum Commands {
         #[arg(short, long, default_value_t = false)]
         orthographic: bool,
     },
+    /// Lines that split after a while
+    Splits {
+        /// Marker type (Braille, Dot, Bar, Block, HalfBlock)
+        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
+        marker: Marker,
+    },
 }
 
 fn main() -> Result<()> {
@@ -67,6 +74,9 @@ fn main() -> Result<()> {
             *orthographic,
         )
         .run(terminal, *tick_rate, *seed),
+        Commands::Splits { marker } => {
+            splits::App::new(size.width, size.height, *marker).run(terminal)
+        }
     };
     ratatui::restore();
     app_result
