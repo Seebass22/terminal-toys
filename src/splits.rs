@@ -29,10 +29,11 @@ pub struct App {
     exit: bool,
     walkers: Vec<Walker>,
     playground: Rect,
-    tick_count: u64,
+    ticks_since_stopped: u64,
     debug_text: String,
     marker: Marker,
     rng: Rand64,
+    max_walkers: usize,
 }
 
 impl App {
@@ -54,10 +55,11 @@ impl App {
             exit: false,
             playground: Rect::new(0, 0, width as u16, height as u16),
             walkers: vec![first_walker],
-            tick_count: 0,
+            ticks_since_stopped: 0,
             marker,
             debug_text: String::new(),
             rng,
+            max_walkers: 300,
         }
     }
 
@@ -79,6 +81,10 @@ impl App {
             }
 
             if last_tick.elapsed() >= tick_rate {
+                if self.ticks_since_stopped > 200 {
+                    self.ticks_since_stopped = 0;
+                    self.reset();
+                }
                 self.debug_text = format!("{}", self.walkers.len());
                 self.on_tick();
                 last_tick = Instant::now();
@@ -99,7 +105,8 @@ impl App {
                         walker.active = false;
                         continue;
                     }
-                    if walker.history.len() % walker.split_len == 0 && n_walkers < 300 {
+                    if walker.history.len() % walker.split_len == 0 && n_walkers < self.max_walkers
+                    {
                         let dir = walker.direction;
                         walker.direction *= self.rng.rand_float() + 0.2;
                         walker.direction = DVec2::new(dir.y, -dir.x);
@@ -125,11 +132,13 @@ impl App {
         self.walkers.clear();
         let middle_x = self.playground.right() as f64 * 0.5;
         let middle_y = self.playground.bottom() as f64 * 0.5;
+        // let random_direction = DVec2::new(self.rng.rand_float() + 0.2, self.rng.rand_float() + 0.2);
 
         let first_walker = Walker {
             history: Vec::new(),
             location: DVec2::new(middle_x, middle_y),
             direction: DVec2::new(0.0, 0.7),
+            // direction: random_direction,
             active: true,
             split_len: 5,
             color_index: 1,
@@ -149,7 +158,10 @@ impl App {
     }
 
     fn on_tick(&mut self) {
-        self.tick_count += 1;
+        if self.walkers.len() >= self.max_walkers {
+            self.ticks_since_stopped += 1;
+            self.debug_text = format!("{}", self.ticks_since_stopped);
+        }
     }
 
     fn draw(&self, frame: &mut Frame) {
