@@ -34,10 +34,11 @@ pub struct App {
     marker: Marker,
     rng: Rand64,
     max_walkers: usize,
+    rotate: bool,
 }
 
 impl App {
-    pub fn new(terminal_width: u16, terminal_height: u16, marker: Marker) -> Self {
+    pub fn new(terminal_width: u16, terminal_height: u16, marker: Marker, rotate: bool) -> Self {
         let scale_factor = terminal_height as f32 / terminal_width as f32;
         let font_scale_factor = 2.0;
         let width = 200.0;
@@ -60,6 +61,7 @@ impl App {
             debug_text: String::new(),
             rng,
             max_walkers: 300,
+            rotate,
         }
     }
 
@@ -132,13 +134,16 @@ impl App {
         self.walkers.clear();
         let middle_x = self.playground.right() as f64 * 0.5;
         let middle_y = self.playground.bottom() as f64 * 0.5;
-        // let random_direction = DVec2::new(self.rng.rand_float() + 0.2, self.rng.rand_float() + 0.2);
+        let direction = if self.rotate {
+            DVec2::new(self.rng.rand_float() + 0.2, self.rng.rand_float() + 0.2)
+        } else {
+            DVec2::new(0.0, 0.7)
+        };
 
         let first_walker = Walker {
             history: Vec::new(),
             location: DVec2::new(middle_x, middle_y),
-            direction: DVec2::new(0.0, 0.7),
-            // direction: random_direction,
+            direction,
             active: true,
             split_len: 5,
             color_index: 1,

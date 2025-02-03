@@ -48,6 +48,9 @@ enum Commands {
         /// Marker type (Braille, Dot, Bar, Block, HalfBlock)
         #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
         marker: Marker,
+
+        #[arg(short, long, default_value_t = false)]
+        rotate: bool,
     },
 }
 
@@ -74,8 +77,8 @@ fn main() -> Result<()> {
             *orthographic,
         )
         .run(terminal, *tick_rate, *seed),
-        Commands::Splits { marker } => {
-            splits::App::new(size.width, size.height, *marker).run(terminal)
+        Commands::Splits { marker, rotate } => {
+            splits::App::new(size.width, size.height, *marker, *rotate).run(terminal)
         }
     };
     ratatui::restore();
