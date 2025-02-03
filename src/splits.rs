@@ -1,6 +1,7 @@
 use color_eyre::Result;
 use crossterm::event::KeyEventKind;
 use glam::DVec2;
+use oorandom::Rand64;
 use ratatui::{
     crossterm::event::{self, Event, KeyCode},
     layout::Rect,
@@ -21,6 +22,7 @@ struct Walker {
     direction: DVec2,
     active: bool,
     split_len: usize,
+    color_index: u8,
 }
 
 pub struct App {
@@ -30,6 +32,7 @@ pub struct App {
     tick_count: u64,
     debug_text: String,
     marker: Marker,
+    rng: Rand64,
 }
 
 impl App {
@@ -41,10 +44,12 @@ impl App {
         let first_walker = Walker {
             history: Vec::new(),
             location: DVec2::new(10.0, 0.0),
-            direction: DVec2::new(0.0, 3.0),
+            direction: DVec2::new(0.0, 0.7),
             active: true,
-            split_len: 8,
+            split_len: 5,
+            color_index: 1,
         };
+        let rng = oorandom::Rand64::new(99);
         Self {
             exit: false,
             playground: Rect::new(0, 0, width as u16, height as u16),
@@ -52,13 +57,14 @@ impl App {
             tick_count: 0,
             marker,
             debug_text: String::new(),
+            rng,
         }
     }
 
     pub fn run(mut self, mut terminal: DefaultTerminal) -> Result<()> {
         let tick_rate = Duration::from_millis(16);
         let mut last_tick = Instant::now();
-        let mut rng = oorandom::Rand64::new(99);
+        self.reset();
         while !self.exit {
             terminal.draw(|frame| self.draw(frame))?;
             let timeout = tick_rate.saturating_sub(last_tick.elapsed());
@@ -73,9 +79,11 @@ impl App {
             }
 
             if last_tick.elapsed() >= tick_rate {
+                self.debug_text = format!("{}", self.walkers.len());
                 self.on_tick();
                 last_tick = Instant::now();
                 let mut to_split = Vec::new();
+                let n_walkers = self.walkers.len();
                 for walker in self.walkers.iter_mut() {
                     if !walker.active {
                         continue;
@@ -91,8 +99,9 @@ impl App {
                         walker.active = false;
                         continue;
                     }
-                    if walker.history.len() % walker.split_len == 0 {
+                    if walker.history.len() % walker.split_len == 0 && n_walkers < 300 {
                         let dir = walker.direction;
+                        walker.direction *= self.rng.rand_float() + 0.2;
                         walker.direction = DVec2::new(dir.y, -dir.x);
                         to_split.push(walker.clone());
                     }
@@ -103,12 +112,29 @@ impl App {
                     split_walker.history.push(split_walker.location);
                     let dir = split_walker.direction;
                     split_walker.direction = DVec2::new(-dir.y, dir.x);
-                    split_walker.split_len = rng.rand_range(18..50) as usize;
+                    split_walker.split_len = self.rng.rand_range(20..70) as usize;
+                    split_walker.color_index = (split_walker.color_index + 1) % 12;
                     self.walkers.push(split_walker);
                 }
             }
         }
         Ok(())
+    }
+
+    fn reset(&mut self) {
+        self.walkers.clear();
+        let middle_x = self.playground.right() as f64 * 0.5;
+        let middle_y = self.playground.bottom() as f64 * 0.5;
+
+        let first_walker = Walker {
+            history: Vec::new(),
+            location: DVec2::new(middle_x, middle_y),
+            direction: DVec2::new(0.0, 0.7),
+            active: true,
+            split_len: 5,
+            color_index: 1,
+        };
+        self.walkers.push(first_walker);
     }
 
     fn handle_key_press(&mut self, key: event::KeyEvent) {
@@ -143,7 +169,8 @@ impl App {
                         let line_points = w;
                         let p0 = line_points[0];
                         let p1 = line_points[1];
-                        let line = Line::new(p0.x, p0.y, p1.x, p1.y, Color::Red);
+                        let line =
+                            Line::new(p0.x, p0.y, p1.x, p1.y, Color::Indexed(walker.color_index));
                         ctx.draw(&line);
                     }
                 }
