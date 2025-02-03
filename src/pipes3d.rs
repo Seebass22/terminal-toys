@@ -180,7 +180,7 @@ impl App {
                     let color_index = ((index_f as u64 % 7) + 1) as u8;
                     for (i, point) in win.iter().enumerate() {
                         let modified_point = *point - self.camera_position;
-                        if modified_point.z < -9.0 {
+                        if modified_point.z < -9.0 && !self.orthographic {
                             continue 'outer;
                         }
                         if self.orthographic {
