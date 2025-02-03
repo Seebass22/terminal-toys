@@ -38,7 +38,14 @@ pub struct App {
 }
 
 impl App {
-    pub fn new(terminal_width: u16, terminal_height: u16, marker: Marker, rotate: bool) -> Self {
+    pub fn new(
+        terminal_width: u16,
+        terminal_height: u16,
+        marker: Marker,
+        rotate: bool,
+        max_walkers: u16,
+        seed: u128,
+    ) -> Self {
         let scale_factor = terminal_height as f32 / terminal_width as f32;
         let font_scale_factor = 2.0;
         let width = 200.0;
@@ -51,7 +58,7 @@ impl App {
             split_len: 5,
             color_index: 1,
         };
-        let rng = oorandom::Rand64::new(99);
+        let rng = oorandom::Rand64::new(seed);
         Self {
             exit: false,
             playground: Rect::new(0, 0, width as u16, height as u16),
@@ -60,7 +67,7 @@ impl App {
             marker,
             debug_text: String::new(),
             rng,
-            max_walkers: 300,
+            max_walkers: max_walkers as usize,
             rotate,
         }
     }
@@ -87,7 +94,6 @@ impl App {
                     self.ticks_since_stopped = 0;
                     self.reset();
                 }
-                self.debug_text = format!("{}", self.walkers.len());
                 self.on_tick();
                 last_tick = Instant::now();
                 let mut to_split = Vec::new();
@@ -135,7 +141,7 @@ impl App {
         let middle_x = self.playground.right() as f64 * 0.5;
         let middle_y = self.playground.bottom() as f64 * 0.5;
         let direction = if self.rotate {
-            DVec2::new(self.rng.rand_float() + 0.2, self.rng.rand_float() + 0.2)
+            DVec2::new(self.rng.rand_float() + 0.1, self.rng.rand_float() + 0.1)
         } else {
             DVec2::new(0.0, 0.7)
         };
@@ -165,7 +171,6 @@ impl App {
     fn on_tick(&mut self) {
         if self.walkers.len() >= self.max_walkers {
             self.ticks_since_stopped += 1;
-            self.debug_text = format!("{}", self.ticks_since_stopped);
         }
     }
 

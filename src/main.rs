@@ -51,6 +51,12 @@ enum Commands {
 
         #[arg(short, long, default_value_t = false)]
         rotate: bool,
+
+        #[arg(short = 'n', long, value_name = "WALKERS", default_value_t = 80)]
+        max_walkers: u16,
+
+        #[arg(short, long, value_name = "SEED", default_value_t = 99)]
+        seed: u128,
     },
 }
 
@@ -77,9 +83,20 @@ fn main() -> Result<()> {
             *orthographic,
         )
         .run(terminal, *tick_rate, *seed),
-        Commands::Splits { marker, rotate } => {
-            splits::App::new(size.width, size.height, *marker, *rotate).run(terminal)
-        }
+        Commands::Splits {
+            marker,
+            rotate,
+            max_walkers,
+            seed,
+        } => splits::App::new(
+            size.width,
+            size.height,
+            *marker,
+            *rotate,
+            *max_walkers,
+            *seed,
+        )
+        .run(terminal),
     };
     ratatui::restore();
     app_result
