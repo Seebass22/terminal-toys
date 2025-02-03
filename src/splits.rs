@@ -108,7 +108,7 @@ impl App {
                     if walker.history.len() % walker.split_len == 0 && n_walkers < self.max_walkers
                     {
                         let dir = walker.direction;
-                        walker.direction *= self.rng.rand_float() + 0.2;
+                        walker.direction *= self.rng.rand_float() + 0.5;
                         to_split.push(walker.clone());
                         walker.direction = DVec2::new(dir.y, -dir.x);
                     }
