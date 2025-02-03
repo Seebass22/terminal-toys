@@ -117,8 +117,8 @@ impl App {
                     {
                         let dir = walker.direction;
                         walker.direction *= self.rng.rand_float() + 0.2;
-                        walker.direction = DVec2::new(dir.y, -dir.x);
                         to_split.push(walker.clone());
+                        walker.direction = DVec2::new(dir.y, -dir.x);
                     }
                 }
 
@@ -141,7 +141,12 @@ impl App {
         let middle_x = self.playground.right() as f64 * 0.5;
         let middle_y = self.playground.bottom() as f64 * 0.5;
         let direction = if self.rotate {
-            DVec2::new(self.rng.rand_float() + 0.1, self.rng.rand_float() + 0.1)
+            let v = DVec2::new(self.rng.rand_float(), self.rng.rand_float());
+            if v.x + v.y > 0.2 {
+                v
+            } else {
+                DVec2::new(self.rng.rand_float() + 0.1, self.rng.rand_float() + 0.1)
+            }
         } else {
             DVec2::new(0.0, 0.7)
         };
