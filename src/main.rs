@@ -65,6 +65,14 @@ enum Commands {
         #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
         marker: Marker,
 
+        /// Width of board
+        #[arg(short, long, value_name = "WIDTH", default_value_t = 100)]
+        width: usize,
+
+        /// Number of live cells to start with
+        #[arg(short, value_name = "N", default_value_t = 1000)]
+        n: usize,
+
         #[arg(short, long, value_name = "SEED", default_value_t = 99)]
         seed: u128,
     },
@@ -107,9 +115,12 @@ fn main() -> Result<()> {
             *seed,
         )
         .run(terminal),
-        Commands::Life { marker, seed } => {
-            life::App::new(size.width, size.height, *marker, *seed).run(terminal)
-        }
+        Commands::Life {
+            marker,
+            seed,
+            n,
+            width,
+        } => life::App::new(size.width, size.height, *marker, *seed, *n, *width).run(terminal),
     };
     ratatui::restore();
     app_result
