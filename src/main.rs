@@ -1,4 +1,5 @@
 mod balls;
+mod life;
 mod pipes3d;
 mod splits;
 
@@ -58,6 +59,15 @@ enum Commands {
         #[arg(short, long, value_name = "SEED", default_value_t = 99)]
         seed: u128,
     },
+    /// Game of life
+    Life {
+        /// Marker type (Braille, Dot, Bar, Block, HalfBlock)
+        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
+        marker: Marker,
+
+        #[arg(short, long, value_name = "SEED", default_value_t = 99)]
+        seed: u128,
+    },
 }
 
 fn main() -> Result<()> {
@@ -97,6 +107,9 @@ fn main() -> Result<()> {
             *seed,
         )
         .run(terminal),
+        Commands::Life { marker, seed } => {
+            life::App::new(size.width, size.height, *marker, *seed).run(terminal)
+        }
     };
     ratatui::restore();
     app_result
