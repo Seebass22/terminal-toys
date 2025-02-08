@@ -66,7 +66,7 @@ impl App {
     }
 
     pub fn run(mut self, mut terminal: DefaultTerminal) -> Result<()> {
-        let tick_rate = Duration::from_millis(16);
+        let tick_rate = Duration::from_millis(32);
         let mut last_tick = Instant::now();
         self.reset();
 
@@ -87,7 +87,7 @@ impl App {
                 if self.is_sim_running {
                     self.on_tick();
                 } else {
-                    let ticks_to_generate = 100;
+                    let ticks_to_generate = 50;
                     let n_to_generate_per_tick = self.initial_n_alive / ticks_to_generate;
                     let n_to_generate = std::cmp::min(
                         self.initial_n_alive - self.n_generated,
@@ -130,10 +130,12 @@ impl App {
         let mut new_grid = self.grid.clone();
         let height = self.grid.len();
         let width = self.grid[0].len();
+        #[allow(clippy::needless_range_loop)]
         for y in 0..height {
             for x in 0..width {
                 let neighbors = grid_neighbors(&self.grid, x, y);
                 let n_alive = neighbors.into_iter().filter(|&val| val).count();
+                #[allow(clippy::manual_range_contains)]
                 if n_alive < 2 || n_alive > 3 {
                     new_grid[y][x] = false;
                 }
