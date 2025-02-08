@@ -69,6 +69,7 @@ impl App {
         let tick_rate = Duration::from_millis(16);
         let mut last_tick = Instant::now();
         self.reset();
+
         while !self.exit {
             terminal.draw(|frame| self.draw(frame))?;
             let timeout = tick_rate.saturating_sub(last_tick.elapsed());
@@ -86,12 +87,21 @@ impl App {
                 if self.is_sim_running {
                     self.on_tick();
                 } else {
-                    let x = self.rng.rand_range(0..self.grid.len() as u64) as usize;
-                    let y = self.rng.rand_range(0..self.grid.len() as u64) as usize;
-                    self.grid[y][x] = true;
-                    self.n_generated += 1;
-                    if self.n_generated >= self.initial_n_alive {
-                        self.is_sim_running = true;
+                    let ticks_to_generate = 100;
+                    let n_to_generate_per_tick = self.initial_n_alive / ticks_to_generate;
+                    let n_to_generate = std::cmp::min(
+                        self.initial_n_alive - self.n_generated,
+                        n_to_generate_per_tick,
+                    );
+
+                    for _ in 0..n_to_generate {
+                        let x = self.rng.rand_range(0..self.grid.len() as u64) as usize;
+                        let y = self.rng.rand_range(0..self.grid.len() as u64) as usize;
+                        self.grid[y][x] = true;
+                        self.n_generated += 1;
+                        if self.n_generated >= self.initial_n_alive {
+                            self.is_sim_running = true;
+                        }
                     }
                 }
                 last_tick = Instant::now();
