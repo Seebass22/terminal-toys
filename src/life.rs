@@ -113,13 +113,22 @@ impl App {
         Ok(())
     }
 
-    fn reset(&mut self) {}
+    fn reset(&mut self) {
+        self.is_sim_running = false;
+        self.n_generated = 0;
+        for line in self.grid.iter_mut() {
+            for val in line.iter_mut() {
+                *val = false;
+            }
+        }
+    }
 
     fn handle_key_press(&mut self, key: event::KeyEvent) {
         if key.kind != KeyEventKind::Press {
             return;
         }
         match key.code {
+            KeyCode::Char('r') => self.reset(),
             KeyCode::Char('q') => self.exit = true,
             KeyCode::Char('Q') => self.exit = true,
             _ => (),
