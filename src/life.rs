@@ -46,7 +46,10 @@ impl App {
         let rng = oorandom::Rand64::new(seed);
         let mut grid = Vec::new();
 
-        for _ in 0..board_width {
+        let wh_factor = height / width;
+        let board_height = (board_width as f32 * wh_factor) as usize;
+
+        for _ in 0..board_height {
             let mut line = Vec::new();
             line.resize(board_width, false);
             grid.push(line);
@@ -95,7 +98,7 @@ impl App {
                     );
 
                     for _ in 0..n_to_generate {
-                        let x = self.rng.rand_range(0..self.grid.len() as u64) as usize;
+                        let x = self.rng.rand_range(0..self.grid[0].len() as u64) as usize;
                         let y = self.rng.rand_range(0..self.grid.len() as u64) as usize;
                         self.grid[y][x] = true;
                         self.n_generated += 1;
@@ -163,18 +166,22 @@ impl App {
                     return;
                 }
                 let width = self.grid[0].len();
-                let square_size = self.playground.x / width as f64;
+                let height = self.grid.len();
+                let square_width = self.playground.x / width as f64;
+                let square_height = self.playground.y / height as f64;
 
                 for (y, line) in self.grid.iter().enumerate() {
-                    let y = map_range(y as f64, 0.0, width as f64, 0.0, self.playground.x);
+                    let y = map_range(y as f64, 0.0, height as f64, 0.0, self.playground.y);
                     for (x, &val) in line.iter().enumerate() {
                         let x = map_range(x as f64, 0.0, width as f64, 0.0, self.playground.x);
                         if val {
                             let square = Rectangle {
                                 x,
                                 y,
-                                width: square_size,
-                                height: square_size,
+                                // width: square_size,
+                                // height: square_size,
+                                width: square_width,
+                                height: square_height,
                                 color: Color::Blue,
                             };
                             ctx.draw(&square);
@@ -189,10 +196,11 @@ impl App {
 
 fn grid_neighbors(grid: &[Vec<bool>], x: usize, y: usize) -> [bool; 8] {
     let mut ret = [false; 8];
-    let size = grid.len() as i32;
-    if size == 0 {
+    let height = grid.len() as i32;
+    if height == 0 {
         return ret;
     }
+    let width = grid[0].len() as i32;
     for (i, (x_off, y_off)) in [
         (-1, -1),
         (0, -1),
@@ -211,13 +219,13 @@ fn grid_neighbors(grid: &[Vec<bool>], x: usize, y: usize) -> [bool; 8] {
         let mut x = x as i32 + x_off;
         let mut y = y as i32 + y_off;
         if x == -1 {
-            x = size - 1;
-        } else if x == size {
+            x = width - 1;
+        } else if x == width {
             x = 0;
         }
         if y == -1 {
-            y = size - 1;
-        } else if y == size {
+            y = height - 1;
+        } else if y == height {
             y = 0;
         }
         ret[i] = grid[y as usize][x as usize];

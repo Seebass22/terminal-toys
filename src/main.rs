@@ -66,14 +66,14 @@ enum Commands {
         marker: Marker,
 
         /// Width of board
-        #[arg(short, long, value_name = "WIDTH", default_value_t = 100)]
+        #[arg(short, long, value_name = "WIDTH", default_value_t = 40)]
         width: usize,
 
         /// Number of live cells to start with
-        #[arg(short, value_name = "N", default_value_t = 1000)]
+        #[arg(short, value_name = "N", default_value_t = 300)]
         n: usize,
 
-        #[arg(short, long, value_name = "SEED", default_value_t = 99)]
+        #[arg(short, long, value_name = "SEED", default_value_t = 3)]
         seed: u128,
     },
 }
