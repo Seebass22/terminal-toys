@@ -19,7 +19,7 @@ pub fn map_range(val: f64, in_min: f64, in_max: f64, out_min: f64, out_max: f64)
 }
 
 pub struct App {
-    grid: Vec<Vec<bool>>,
+    grid: Vec<Vec<(bool, u8)>>,
     exit: bool,
     playground: DVec2,
     debug_text: String,
@@ -51,7 +51,7 @@ impl App {
 
         for _ in 0..board_height {
             let mut line = Vec::new();
-            line.resize(board_width, false);
+            line.resize(board_width, (false, 0));
             grid.push(line);
         }
 
@@ -100,7 +100,8 @@ impl App {
                     for _ in 0..n_to_generate {
                         let x = self.rng.rand_range(0..self.grid[0].len() as u64) as usize;
                         let y = self.rng.rand_range(0..self.grid.len() as u64) as usize;
-                        self.grid[y][x] = true;
+                        let color = self.rng.rand_range(1..13) as u8;
+                        self.grid[y][x] = (true, color);
                         self.n_generated += 1;
                         if self.n_generated >= self.initial_n_alive {
                             self.is_sim_running = true;
@@ -118,7 +119,7 @@ impl App {
         self.n_generated = 0;
         for line in self.grid.iter_mut() {
             for val in line.iter_mut() {
-                *val = false;
+                *val = (false, 0);
             }
         }
     }
@@ -146,13 +147,15 @@ impl App {
         for y in 0..height {
             for x in 0..width {
                 let neighbors = grid_neighbors(&self.grid, x, y);
-                let n_alive = neighbors.into_iter().filter(|&val| val).count();
+                let mut alive = neighbors.into_iter().filter(|&(val, _color)| val);
+                let n_alive = alive.clone().count();
                 #[allow(clippy::manual_range_contains)]
                 if n_alive < 2 || n_alive > 3 {
-                    new_grid[y][x] = false;
+                    new_grid[y][x] = (false, 0);
                 }
                 if n_alive == 3 {
-                    new_grid[y][x] = true;
+                    let color = alive.next().unwrap().1;
+                    new_grid[y][x] = (true, color);
                 }
             }
         }
@@ -181,7 +184,7 @@ impl App {
 
                 for (y, line) in self.grid.iter().enumerate() {
                     let y = map_range(y as f64, 0.0, height as f64, 0.0, self.playground.y);
-                    for (x, &val) in line.iter().enumerate() {
+                    for (x, &(val, color)) in line.iter().enumerate() {
                         let x = map_range(x as f64, 0.0, width as f64, 0.0, self.playground.x);
                         if val {
                             let square = Rectangle {
@@ -191,7 +194,7 @@ impl App {
                                 // height: square_size,
                                 width: square_width,
                                 height: square_height,
-                                color: Color::Blue,
+                                color: Color::Indexed(color),
                             };
                             ctx.draw(&square);
                         }
@@ -203,8 +206,8 @@ impl App {
     }
 }
 
-fn grid_neighbors(grid: &[Vec<bool>], x: usize, y: usize) -> [bool; 8] {
-    let mut ret = [false; 8];
+fn grid_neighbors(grid: &[Vec<(bool, u8)>], x: usize, y: usize) -> [(bool, u8); 8] {
+    let mut ret = [(false, 0); 8];
     let height = grid.len() as i32;
     if height == 0 {
         return ret;
