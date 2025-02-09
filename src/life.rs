@@ -12,14 +12,22 @@ use ratatui::{
     },
     DefaultTerminal, Frame,
 };
+use std::hash::{DefaultHasher, Hash, Hasher};
 use std::time::{Duration, Instant};
 
 pub fn map_range(val: f64, in_min: f64, in_max: f64, out_min: f64, out_max: f64) -> f64 {
     (val - in_min) / (in_max - in_min) * (out_max - out_min) + out_min
 }
 
+fn calculate_hash<T: Hash>(t: &T) -> u64 {
+    let mut s = DefaultHasher::new();
+    t.hash(&mut s);
+    s.finish()
+}
+
 pub struct App {
     grid: Vec<Vec<(bool, u8)>>,
+    hash_history: Vec<u64>,
     exit: bool,
     playground: DVec2,
     debug_text: String,
@@ -57,6 +65,7 @@ impl App {
 
         Self {
             grid,
+            hash_history: Vec::new(),
             exit: false,
             playground: DVec2::new(width as f64, height as f64),
             marker,
@@ -157,6 +166,17 @@ impl App {
             }
         }
         self.grid = new_grid;
+        let hash = calculate_hash(&self.grid);
+        if self.hash_history.len() == 3 {
+            if self.hash_history[0] == self.hash_history[2] {
+                self.hash_history.clear();
+                self.reset();
+                return;
+            }
+            self.hash_history.rotate_left(1);
+            self.hash_history.pop();
+        }
+        self.hash_history.push(hash);
     }
 
     fn draw(&self, frame: &mut Frame) {
@@ -187,8 +207,6 @@ impl App {
                             let square = Rectangle {
                                 x,
                                 y,
-                                // width: square_size,
-                                // height: square_size,
                                 width: square_width,
                                 height: square_height,
                                 color: Color::Indexed(color),
