@@ -146,15 +146,12 @@ impl App {
         #[allow(clippy::needless_range_loop)]
         for y in 0..height {
             for x in 0..width {
-                let neighbors = grid_neighbors(&self.grid, x, y);
-                let mut alive = neighbors.into_iter().filter(|&(val, _color)| val);
-                let n_alive = alive.clone().count();
+                let (n_alive, color) = grid_neighbors(&self.grid, x, y);
                 #[allow(clippy::manual_range_contains)]
                 if n_alive < 2 || n_alive > 3 {
                     new_grid[y][x] = (false, 0);
                 }
                 if n_alive == 3 {
-                    let color = alive.next().unwrap().1;
                     new_grid[y][x] = (true, color);
                 }
             }
@@ -206,14 +203,15 @@ impl App {
     }
 }
 
-fn grid_neighbors(grid: &[Vec<(bool, u8)>], x: usize, y: usize) -> [(bool, u8); 8] {
-    let mut ret = [(false, 0); 8];
+fn grid_neighbors(grid: &[Vec<(bool, u8)>], x: usize, y: usize) -> (usize, u8) {
     let height = grid.len() as i32;
     if height == 0 {
-        return ret;
+        return (0, 0);
     }
     let width = grid[0].len() as i32;
-    for (i, (x_off, y_off)) in [
+    let mut color = 0;
+    let mut count = 0;
+    for (x_off, y_off) in [
         (-1, -1),
         (0, -1),
         (1, -1),
@@ -226,7 +224,6 @@ fn grid_neighbors(grid: &[Vec<(bool, u8)>], x: usize, y: usize) -> [(bool, u8); 
         (1, 1),
     ]
     .iter()
-    .enumerate()
     {
         let mut x = x as i32 + x_off;
         let mut y = y as i32 + y_off;
@@ -240,7 +237,13 @@ fn grid_neighbors(grid: &[Vec<(bool, u8)>], x: usize, y: usize) -> [(bool, u8); 
         } else if y == height {
             y = 0;
         }
-        ret[i] = grid[y as usize][x as usize];
+        let item = grid[y as usize][x as usize];
+        if item.0 {
+            count += 1;
+        }
+        if color == 0 {
+            color = item.1;
+        }
     }
-    ret
+    (count, color)
 }
