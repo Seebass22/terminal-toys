@@ -1,6 +1,7 @@
 mod balls;
 mod life;
 mod pipes3d;
+mod sand;
 mod splits;
 
 use color_eyre::Result;
@@ -76,6 +77,19 @@ enum Commands {
         #[arg(short, long, value_name = "SEED", default_value_t = 3)]
         seed: u128,
     },
+    /// Sand
+    Sand {
+        /// Marker type (Braille, Dot, Bar, Block, HalfBlock)
+        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
+        marker: Marker,
+
+        /// Width of board
+        #[arg(short, long, value_name = "WIDTH", default_value_t = 40)]
+        width: usize,
+
+        #[arg(short, long, value_name = "SEED", default_value_t = 3)]
+        seed: u128,
+    },
 }
 
 fn main() -> Result<()> {
@@ -121,6 +135,11 @@ fn main() -> Result<()> {
             n,
             width,
         } => life::App::new(size.width, size.height, *marker, *seed, *n, *width).run(terminal),
+        Commands::Sand {
+            marker,
+            width,
+            seed,
+        } => sand::App::new(size.width, size.height, *marker, *seed, *width).run(terminal),
     };
     ratatui::restore();
     app_result
