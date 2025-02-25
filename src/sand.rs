@@ -28,6 +28,7 @@ pub struct App {
     is_sim_running: bool,
     spawn_point: usize,
     color: u8,
+    speed: usize,
 }
 
 impl App {
@@ -37,6 +38,7 @@ impl App {
         marker: Marker,
         seed: u128,
         board_width: usize,
+        speed: usize,
     ) -> Self {
         let scale_factor = terminal_height as f32 / terminal_width as f32;
         let font_scale_factor = 2.0;
@@ -64,6 +66,7 @@ impl App {
             is_sim_running: false,
             spawn_point: 2,
             color: 1,
+            speed,
         }
     }
 
@@ -88,16 +91,18 @@ impl App {
 
             if last_tick.elapsed() >= tick_rate {
                 last_tick = Instant::now();
-                self.on_tick();
-                if i % 2 == 0 {
-                    self.grid[0][self.spawn_point] = Some(self.color);
-                    if self.rng.rand_range(0..100) == 0 {
-                        let width = self.grid[0].len() as u64;
-                        self.spawn_point = self.rng.rand_range(0..width) as usize;
-                        self.color = self.rng.rand_range(1..13) as u8;
+                for _ in 0..self.speed {
+                    self.on_tick();
+                    if i % 2 == 0 {
+                        self.grid[0][self.spawn_point] = Some(self.color);
+                        if self.rng.rand_range(0..500) == 0 {
+                            let width = self.grid[0].len() as u64;
+                            self.spawn_point = self.rng.rand_range(0..width) as usize;
+                            self.color = self.rng.rand_range(1..13) as u8;
+                        }
                     }
+                    i += 1;
                 }
-                i += 1;
             }
         }
         Ok(())

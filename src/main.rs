@@ -84,11 +84,14 @@ enum Commands {
         marker: Marker,
 
         /// Width of board
-        #[arg(short, long, value_name = "WIDTH", default_value_t = 40)]
+        #[arg(short, long, value_name = "WIDTH", default_value_t = 200)]
         width: usize,
 
-        #[arg(short, long, value_name = "SEED", default_value_t = 3)]
+        #[arg(short, long, value_name = "SEED", default_value_t = 0)]
         seed: u128,
+
+        #[arg(short = 'x', long, value_name = "MULT", default_value_t = 20)]
+        speed: usize,
     },
 }
 
@@ -139,7 +142,8 @@ fn main() -> Result<()> {
             marker,
             width,
             seed,
-        } => sand::App::new(size.width, size.height, *marker, *seed, *width).run(terminal),
+            speed,
+        } => sand::App::new(size.width, size.height, *marker, *seed, *width, *speed).run(terminal),
     };
     ratatui::restore();
     app_result
