@@ -92,6 +92,9 @@ enum Commands {
 
         #[arg(short = 'x', long, value_name = "MULT", default_value_t = 20)]
         speed: usize,
+
+        #[arg(short, long, value_name = "N", default_value_t = 0)]
+        obstacles: usize,
     },
 }
 
@@ -143,7 +146,17 @@ fn main() -> Result<()> {
             width,
             seed,
             speed,
-        } => sand::App::new(size.width, size.height, *marker, *seed, *width, *speed).run(terminal),
+            obstacles,
+        } => sand::App::new(
+            size.width,
+            size.height,
+            *marker,
+            *seed,
+            *width,
+            *speed,
+            *obstacles,
+        )
+        .run(terminal),
     };
     ratatui::restore();
     app_result

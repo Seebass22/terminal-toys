@@ -29,6 +29,7 @@ pub struct App {
     spawn_point: usize,
     color: u8,
     speed: usize,
+    obstacles: usize,
 }
 
 impl App {
@@ -39,6 +40,7 @@ impl App {
         seed: u128,
         board_width: usize,
         speed: usize,
+        obstacles: usize,
     ) -> Self {
         let scale_factor = terminal_height as f32 / terminal_width as f32;
         let font_scale_factor = 2.0;
@@ -67,6 +69,7 @@ impl App {
             spawn_point: 2,
             color: 1,
             speed,
+            obstacles,
         }
     }
 
@@ -98,7 +101,7 @@ impl App {
                         if self.rng.rand_range(0..500) == 0 {
                             let width = self.grid[0].len() as u64;
                             self.spawn_point = self.rng.rand_range(0..width) as usize;
-                            self.color = self.rng.rand_range(1..13) as u8;
+                            self.color = self.rng.rand_range(2..13) as u8;
                         }
                     }
                     i += 1;
@@ -115,9 +118,48 @@ impl App {
                 *val = None;
             }
         }
-        let width = self.grid[0].len() as u64;
-        self.spawn_point = self.rng.rand_range(0..width) as usize;
-        self.color = self.rng.rand_range(1..13) as u8;
+        let board_width = self.grid[0].len() as u64;
+        self.spawn_point = self.rng.rand_range(0..board_width) as usize;
+        self.color = self.rng.rand_range(2..13) as u8;
+
+        let bounds_x = (
+            (board_width as f64 * 0.20) as u64,
+            (board_width as f64 * 0.85) as u64,
+        );
+        let board_height = self.grid.len();
+        let bounds_y = (
+            (board_height as f64 * 0.02) as u64,
+            (board_height as f64 * 0.85) as u64,
+        );
+        for _ in 0..self.obstacles {
+            let r = self.rng.rand_range(50..150) as f64;
+            let w = (board_width as f64 * r * 0.001) as i32;
+
+            let x0 = self.rng.rand_range(bounds_x.0..bounds_x.1) as i32;
+            let y0 = self.rng.rand_range(bounds_y.0..bounds_y.1) as i32;
+            let sign = match self.rng.rand_range(0..2) {
+                0 => -1,
+                1 => 1,
+                _ => unreachable!(),
+            };
+            let y_mult = match self.rng.rand_range(0..3) {
+                0 => 1.0,
+                1 => 0.7,
+                2 => 0.0,
+                _ => unreachable!(),
+            };
+            for i in 0..w {
+                let x = (x0 + sign * i) as usize;
+                let y = (y0 + (y_mult * i as f64) as i32) as usize;
+                if x >= board_width as usize || y >= board_height {
+                    continue;
+                }
+                if let Some(1) = self.grid[y][x] {
+                    break;
+                }
+                self.grid[y][x] = Some(1);
+            }
+        }
     }
 
     fn handle_key_press(&mut self, key: event::KeyEvent) {
@@ -143,6 +185,10 @@ impl App {
         for y in 0..(height - 1) {
             for x in 0..width {
                 if self.grid[y][x].is_some() {
+                    if self.grid[y][x].unwrap() == 1 {
+                        continue;
+                    }
+
                     if self.grid[y + 1][x].is_none() {
                         new_grid[y + 1][x] = self.grid[y][x];
                         new_grid[y][x] = None;
@@ -150,6 +196,8 @@ impl App {
                         && x < (width - 1)
                         && self.grid[y + 1][x - 1].is_none()
                         && self.grid[y + 1][x + 1].is_none()
+                        && self.grid[y][x - 1].is_none()
+                        && self.grid[y][x + 1].is_none()
                     {
                         match self.rng.rand_range(0..2) {
                             0 => new_grid[y + 1][x - 1] = self.grid[y][x],
@@ -157,10 +205,16 @@ impl App {
                             _ => unreachable!(),
                         }
                         new_grid[y][x] = None;
-                    } else if x > 0 && self.grid[y + 1][x - 1].is_none() {
+                    } else if x > 0
+                        && self.grid[y + 1][x - 1].is_none()
+                        && self.grid[y][x - 1].is_none()
+                    {
                         new_grid[y + 1][x - 1] = self.grid[y][x];
                         new_grid[y][x] = None;
-                    } else if x < (width - 1) && self.grid[y + 1][x + 1].is_none() {
+                    } else if x < (width - 1)
+                        && self.grid[y + 1][x + 1].is_none()
+                        && self.grid[y][x + 1].is_none()
+                    {
                         new_grid[y + 1][x + 1] = self.grid[y][x];
                         new_grid[y][x] = None;
                     }
