@@ -30,6 +30,7 @@ pub struct App {
     color: u8,
     speed: usize,
     obstacles: usize,
+    particles_spawned: usize,
 }
 
 impl App {
@@ -70,6 +71,7 @@ impl App {
             color: 1,
             speed,
             obstacles,
+            particles_spawned: 0,
         }
     }
 
@@ -77,6 +79,8 @@ impl App {
         let tick_rate = Duration::from_millis(8);
         let mut last_tick = Instant::now();
         self.reset();
+        let board_width = self.grid[0].len();
+        let board_height = self.grid.len();
 
         let mut i = 0;
         while !self.exit {
@@ -97,6 +101,7 @@ impl App {
                 for _ in 0..self.speed {
                     self.on_tick();
                     if i % 2 == 0 {
+                        self.particles_spawned += 1;
                         self.grid[0][self.spawn_point] = Some(self.color);
                         if self.rng.rand_range(0..500) == 0 {
                             let width = self.grid[0].len() as u64;
@@ -106,6 +111,9 @@ impl App {
                     }
                     i += 1;
                 }
+                if self.particles_spawned >= (board_height * board_width) {
+                    self.reset();
+                }
             }
         }
         Ok(())
@@ -113,6 +121,7 @@ impl App {
 
     fn reset(&mut self) {
         self.is_sim_running = false;
+        self.particles_spawned = 0;
         for line in self.grid.iter_mut() {
             for val in line.iter_mut() {
                 *val = None;
