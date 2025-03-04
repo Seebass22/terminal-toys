@@ -256,14 +256,10 @@ impl App {
                     for (x, val) in line.iter().enumerate() {
                         let x = map_range(x as f64, 0.0, width as f64, 0.0, self.playground.x);
                         if let &Some(color) = val {
-                            let square = Rectangle {
-                                x,
-                                y,
-                                width: square_width,
-                                height: square_height,
+                            ctx.draw(&Points {
+                                coords: &[(x, y)],
                                 color: Color::Indexed(color),
-                            };
-                            ctx.draw(&square);
+                            });
                         }
                     }
                 }
