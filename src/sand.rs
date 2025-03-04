@@ -187,11 +187,10 @@ impl App {
         if self.grid.is_empty() {
             return;
         }
-        let mut new_grid = self.grid.clone();
         let height = self.grid.len();
         let width = self.grid[0].len();
         #[allow(clippy::needless_range_loop)]
-        for y in 0..(height - 1) {
+        for y in (0..(height - 1)).rev() {
             for x in 0..width {
                 if self.grid[y][x].is_some() {
                     if self.grid[y][x].unwrap() == 1 {
@@ -199,8 +198,8 @@ impl App {
                     }
 
                     if self.grid[y + 1][x].is_none() {
-                        new_grid[y + 1][x] = self.grid[y][x];
-                        new_grid[y][x] = None;
+                        self.grid[y + 1][x] = self.grid[y][x];
+                        self.grid[y][x] = None;
                     } else if x > 0
                         && x < (width - 1)
                         && self.grid[y + 1][x - 1].is_none()
@@ -209,28 +208,27 @@ impl App {
                         && self.grid[y][x + 1].is_none()
                     {
                         match self.rng.rand_range(0..2) {
-                            0 => new_grid[y + 1][x - 1] = self.grid[y][x],
-                            1 => new_grid[y + 1][x + 1] = self.grid[y][x],
+                            0 => self.grid[y + 1][x - 1] = self.grid[y][x],
+                            1 => self.grid[y + 1][x + 1] = self.grid[y][x],
                             _ => unreachable!(),
                         }
-                        new_grid[y][x] = None;
+                        self.grid[y][x] = None;
                     } else if x > 0
                         && self.grid[y + 1][x - 1].is_none()
                         && self.grid[y][x - 1].is_none()
                     {
-                        new_grid[y + 1][x - 1] = self.grid[y][x];
-                        new_grid[y][x] = None;
+                        self.grid[y + 1][x - 1] = self.grid[y][x];
+                        self.grid[y][x] = None;
                     } else if x < (width - 1)
                         && self.grid[y + 1][x + 1].is_none()
                         && self.grid[y][x + 1].is_none()
                     {
-                        new_grid[y + 1][x + 1] = self.grid[y][x];
-                        new_grid[y][x] = None;
+                        self.grid[y + 1][x + 1] = self.grid[y][x];
+                        self.grid[y][x] = None;
                     }
                 }
             }
         }
-        self.grid = new_grid;
     }
 
     fn draw(&self, frame: &mut Frame) {
