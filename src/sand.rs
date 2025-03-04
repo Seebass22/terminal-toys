@@ -132,12 +132,12 @@ impl App {
         self.color = self.rng.rand_range(2..8) as u8;
 
         let bounds_x = (
-            (board_width as f64 * 0.20) as u64,
-            (board_width as f64 * 0.85) as u64,
+            (board_width as f64 * 0.02) as u64,
+            (board_width as f64 * 0.95) as u64,
         );
         let board_height = self.grid.len();
         let bounds_y = (
-            (board_height as f64 * 0.02) as u64,
+            (board_height as f64 * 0.20) as u64,
             (board_height as f64 * 0.85) as u64,
         );
         for _ in 0..self.obstacles {
