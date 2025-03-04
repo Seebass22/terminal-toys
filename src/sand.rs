@@ -30,6 +30,7 @@ pub struct App {
     color: u8,
     speed: usize,
     obstacles: usize,
+    particles: u64,
     particles_spawned: usize,
 }
 
@@ -41,6 +42,7 @@ impl App {
         seed: u128,
         speed: usize,
         obstacles: usize,
+        particles: u64,
     ) -> Self {
         let rng = oorandom::Rand64::new(seed);
         let mut grid = Vec::new();
@@ -72,6 +74,7 @@ impl App {
             color: 1,
             speed,
             obstacles,
+            particles,
             particles_spawned: 0,
         }
     }
@@ -104,7 +107,7 @@ impl App {
                     if i % 2 == 0 {
                         self.particles_spawned += 1;
                         self.grid[0][self.spawn_point] = Some(self.color);
-                        if self.rng.rand_range(0..200) == 0 {
+                        if self.rng.rand_range(0..self.particles) == 0 {
                             let width = self.grid[0].len() as u64;
                             self.spawn_point = self.rng.rand_range(0..width) as usize;
                             self.color = self.rng.rand_range(2..8) as u8;

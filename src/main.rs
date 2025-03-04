@@ -89,8 +89,12 @@ enum Commands {
         #[arg(short = 'x', long, value_name = "MULT", default_value_t = 2)]
         speed: usize,
 
-        #[arg(short, long, value_name = "N", default_value_t = 0)]
+        #[arg(short, long, value_name = "N", default_value_t = 40)]
         obstacles: usize,
+
+        /// Average number of particles to spawn before changing spawn point
+        #[arg(short, long, value_name = "N", default_value_t = 100)]
+        particles: u64,
     },
 }
 
@@ -142,8 +146,17 @@ fn main() -> Result<()> {
             seed,
             speed,
             obstacles,
-        } => sand::App::new(size.width, size.height, *marker, *seed, *speed, *obstacles)
-            .run(terminal),
+            particles,
+        } => sand::App::new(
+            size.width,
+            size.height,
+            *marker,
+            *seed,
+            *speed,
+            *obstacles,
+            *particles,
+        )
+        .run(terminal),
     };
     ratatui::restore();
     app_result
