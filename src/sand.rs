@@ -7,7 +7,7 @@ use ratatui::{
     style::Color,
     symbols::Marker,
     widgets::{
-        canvas::{Canvas, Rectangle},
+        canvas::{Canvas, Points},
         Paragraph, Widget,
     },
     DefaultTerminal, Frame,
@@ -39,19 +39,20 @@ impl App {
         terminal_height: u16,
         marker: Marker,
         seed: u128,
-        board_width: usize,
         speed: usize,
         obstacles: usize,
     ) -> Self {
-        let scale_factor = terminal_height as f32 / terminal_width as f32;
-        let font_scale_factor = 2.0;
-        let width = 200.0;
-        let height = width * scale_factor * font_scale_factor;
         let rng = oorandom::Rand64::new(seed);
         let mut grid = Vec::new();
 
-        let wh_factor = height / width;
-        let board_height = (board_width as f32 * wh_factor) as usize;
+        let (board_width, board_height) = match marker {
+            Marker::HalfBlock => (terminal_width as usize, (terminal_height * 2) as usize),
+            Marker::Braille => (
+                (terminal_width * 2) as usize,
+                (terminal_height * 4) as usize,
+            ),
+            _ => (terminal_width as usize, terminal_height as usize),
+        };
 
         for _ in 0..board_height {
             let mut line = Vec::new();
@@ -62,7 +63,7 @@ impl App {
         Self {
             grid,
             exit: false,
-            playground: DVec2::new(width as f64, height as f64),
+            playground: DVec2::new(board_width as f64, board_height as f64),
             marker,
             debug_text: String::new(),
             rng,
@@ -103,7 +104,7 @@ impl App {
                     if i % 2 == 0 {
                         self.particles_spawned += 1;
                         self.grid[0][self.spawn_point] = Some(self.color);
-                        if self.rng.rand_range(0..500) == 0 {
+                        if self.rng.rand_range(0..200) == 0 {
                             let width = self.grid[0].len() as u64;
                             self.spawn_point = self.rng.rand_range(0..width) as usize;
                             self.color = self.rng.rand_range(2..8) as u8;
@@ -248,8 +249,6 @@ impl App {
                 }
                 let width = self.grid[0].len();
                 let height = self.grid.len();
-                let square_width = self.playground.x / width as f64;
-                let square_height = self.playground.y / height as f64;
 
                 for (y, line) in self.grid.iter().rev().enumerate() {
                     let y = map_range(y as f64, 0.0, height as f64, 0.0, self.playground.y);
