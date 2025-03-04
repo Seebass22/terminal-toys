@@ -106,7 +106,7 @@ impl App {
                         if self.rng.rand_range(0..500) == 0 {
                             let width = self.grid[0].len() as u64;
                             self.spawn_point = self.rng.rand_range(0..width) as usize;
-                            self.color = self.rng.rand_range(2..13) as u8;
+                            self.color = self.rng.rand_range(2..8) as u8;
                         }
                     }
                     i += 1;
@@ -129,7 +129,7 @@ impl App {
         }
         let board_width = self.grid[0].len() as u64;
         self.spawn_point = self.rng.rand_range(0..board_width) as usize;
-        self.color = self.rng.rand_range(2..13) as u8;
+        self.color = self.rng.rand_range(2..8) as u8;
 
         let bounds_x = (
             (board_width as f64 * 0.20) as u64,
