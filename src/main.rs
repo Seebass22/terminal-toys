@@ -80,13 +80,13 @@ enum Commands {
     /// Falling sand
     Sand {
         /// Marker type (Braille, Dot, Bar, Block, HalfBlock)
-        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
+        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::HalfBlock)]
         marker: Marker,
 
         #[arg(short, long, value_name = "SEED", default_value_t = 0)]
         seed: u128,
 
-        #[arg(short = 'x', long, value_name = "MULT", default_value_t = 2)]
+        #[arg(short = 'x', long, value_name = "MULT", default_value_t = 1)]
         speed: usize,
 
         #[arg(short, long, value_name = "N", default_value_t = 40)]
