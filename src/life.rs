@@ -7,7 +7,7 @@ use ratatui::{
     style::Color,
     symbols::Marker,
     widgets::{
-        canvas::{Canvas, Rectangle},
+        canvas::{Canvas, Points, Rectangle},
         Paragraph, Widget,
     },
     DefaultTerminal, Frame,
@@ -36,6 +36,7 @@ pub struct App {
     is_sim_running: bool,
     n_generated: usize,
     initial_n_alive: usize,
+    pixel: bool,
 }
 
 impl App {
@@ -44,18 +45,32 @@ impl App {
         terminal_height: u16,
         marker: Marker,
         seed: u128,
-        initial_n_alive: usize,
-        board_width: usize,
+        initial_percentage_alive: f32,
+        board_width: Option<usize>,
     ) -> Self {
         let scale_factor = terminal_height as f32 / terminal_width as f32;
         let font_scale_factor = 2.0;
         let width = 200.0;
         let height = width * scale_factor * font_scale_factor;
+        let wh_factor = height / width;
+        let pixel = board_width.is_none();
         let rng = oorandom::Rand64::new(seed);
         let mut grid = Vec::new();
 
-        let wh_factor = height / width;
-        let board_height = (board_width as f32 * wh_factor) as usize;
+        let (board_width, board_height) = match board_width {
+            Some(width) => (width, (width as f32 * wh_factor) as usize),
+            None => match marker {
+                Marker::HalfBlock => (terminal_width as usize, (terminal_height * 2) as usize),
+                Marker::Braille => (
+                    (terminal_width * 2) as usize,
+                    (terminal_height * 4) as usize,
+                ),
+                _ => (terminal_width as usize, terminal_height as usize),
+            },
+        };
+
+        let initial_n_alive =
+            (initial_percentage_alive * (board_width * board_height) as f32) as usize;
 
         for _ in 0..board_height {
             let mut line = Vec::new();
@@ -74,6 +89,7 @@ impl App {
             is_sim_running: false,
             n_generated: 0,
             initial_n_alive,
+            pixel,
         }
     }
 
@@ -204,14 +220,21 @@ impl App {
                     for (x, &(val, color)) in line.iter().enumerate() {
                         let x = map_range(x as f64, 0.0, width as f64, 0.0, self.playground.x);
                         if val {
-                            let square = Rectangle {
-                                x,
-                                y,
-                                width: square_width,
-                                height: square_height,
-                                color: Color::Indexed(color),
-                            };
-                            ctx.draw(&square);
+                            if self.pixel {
+                                ctx.draw(&Points {
+                                    coords: &[(x, y)],
+                                    color: Color::Indexed(color),
+                                });
+                            } else {
+                                let square = Rectangle {
+                                    x,
+                                    y,
+                                    width: square_width,
+                                    height: square_height,
+                                    color: Color::Indexed(color),
+                                };
+                                ctx.draw(&square);
+                            }
                         }
                     }
                 }

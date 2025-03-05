@@ -66,13 +66,13 @@ enum Commands {
         #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
         marker: Marker,
 
-        /// Width of board
-        #[arg(short, long, value_name = "WIDTH", default_value_t = 40)]
-        width: usize,
+        /// Width of board (default: terminal width)
+        #[arg(short, long, value_name = "WIDTH")]
+        width: Option<usize>,
 
-        /// Number of live cells to start with
-        #[arg(short, value_name = "N", default_value_t = 300)]
-        n: usize,
+        /// Ratio of live cells to start with
+        #[arg(short, value_name = "RATIO", default_value_t = 0.5)]
+        n: f32,
 
         #[arg(short, long, value_name = "SEED", default_value_t = 3)]
         seed: u128,
