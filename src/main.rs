@@ -63,7 +63,7 @@ enum Commands {
     /// Game of life
     Life {
         /// Marker type (Braille, Dot, Bar, Block, HalfBlock)
-        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
+        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::HalfBlock)]
         marker: Marker,
 
         /// Width of board (default: terminal width)
