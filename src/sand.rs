@@ -175,12 +175,17 @@ impl App {
         }
     }
 
+    fn flip(&mut self) {
+        self.grid = self.grid.clone().into_iter().rev().collect();
+    }
+
     fn handle_key_press(&mut self, key: event::KeyEvent) {
         if key.kind != KeyEventKind::Press {
             return;
         }
         match key.code {
             KeyCode::Char('r') => self.reset(),
+            KeyCode::Char('v') => self.flip(),
             KeyCode::Char('q') => self.exit = true,
             KeyCode::Char('Q') => self.exit = true,
             _ => (),
