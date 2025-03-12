@@ -24,6 +24,7 @@ enum Commands {
         #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
         marker: Marker,
 
+        /// Number of balls to spawn
         #[arg(short = 'n', long, value_name = "BALLS", default_value_t = 50)]
         max_balls: u16,
     },
@@ -33,15 +34,18 @@ enum Commands {
         #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
         marker: Marker,
 
+        /// Number of segments to generate before reset
         #[arg(short = 'n', long, value_name = "SEGMENTS", default_value_t = 20000)]
         max_segments: u32,
 
         #[arg(short, long, value_name = "MILLISECONDS", default_value_t = 8)]
         tick_rate: u64,
 
+        /// RNG seed
         #[arg(short, long, value_name = "SEED", default_value_t = 99)]
         seed: u64,
 
+        /// Use orthographic projection
         #[arg(short, long, default_value_t = false)]
         orthographic: bool,
     },
@@ -51,12 +55,14 @@ enum Commands {
         #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
         marker: Marker,
 
+        /// Lines have a random rotation
         #[arg(short, long, default_value_t = false)]
         rotate: bool,
 
         #[arg(short = 'n', long, value_name = "WALKERS", default_value_t = 80)]
         max_walkers: u16,
 
+        /// RNG seed
         #[arg(short, long, value_name = "SEED", default_value_t = 99)]
         seed: u128,
     },
@@ -74,6 +80,7 @@ enum Commands {
         #[arg(short, value_name = "RATIO", default_value_t = 0.5)]
         n: f32,
 
+        /// RNG seed
         #[arg(short, long, value_name = "SEED", default_value_t = 3)]
         seed: u128,
     },
@@ -83,12 +90,15 @@ enum Commands {
         #[arg(short, long, value_name = "TYPE", default_value_t = Marker::HalfBlock)]
         marker: Marker,
 
+        /// RNG seed
         #[arg(short, long, value_name = "SEED", default_value_t = 0)]
         seed: u128,
 
+        /// Speed multiplier
         #[arg(short = 'x', long, value_name = "MULT", default_value_t = 1)]
         speed: usize,
 
+        /// Number of obstacles
         #[arg(short, long, value_name = "N", default_value_t = 40)]
         obstacles: usize,
 
