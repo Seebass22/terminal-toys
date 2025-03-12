@@ -25,7 +25,6 @@ pub struct App {
     debug_text: String,
     marker: Marker,
     rng: Rand64,
-    is_sim_running: bool,
     spawn_point: usize,
     color: u8,
     speed: usize,
@@ -72,9 +71,9 @@ impl App {
             marker,
             debug_text: String::new(),
             rng,
-            is_sim_running: false,
-            spawn_point: 2,
-            color: 1,
+            // spawn point and color set by initial reset()
+            spawn_point: 0,
+            color: 0,
             speed,
             obstacles,
             particles,
@@ -121,7 +120,7 @@ impl App {
                         if self.rng.rand_range(0..self.particles) == 0 {
                             let width = self.grid[0].len() as u64;
                             self.spawn_point = self.rng.rand_range(0..width) as usize;
-                            self.color = self.rng.rand_range(2..8) as u8;
+                            self.color = self.random_color();
                         }
                     }
                     i = i.wrapping_add(1);
@@ -135,7 +134,6 @@ impl App {
     }
 
     fn reset(&mut self) {
-        self.is_sim_running = false;
         self.particles_spawned = 0;
         for line in self.grid.iter_mut() {
             for val in line.iter_mut() {
@@ -144,7 +142,7 @@ impl App {
         }
         let board_width = self.grid[0].len() as u64;
         self.spawn_point = self.rng.rand_range(0..board_width) as usize;
-        self.color = self.rng.rand_range(2..8) as u8;
+        self.color = self.random_color();
 
         let bounds_x = (
             (board_width as f64 * 0.02) as u64,
@@ -188,6 +186,10 @@ impl App {
 
     fn flip(&mut self) {
         self.grid = self.grid.clone().into_iter().rev().collect();
+    }
+
+    fn random_color(&mut self) -> u8 {
+        self.rng.rand_range(2..8) as u8
     }
 
     fn handle_key_press(&mut self, key: event::KeyEvent) {
