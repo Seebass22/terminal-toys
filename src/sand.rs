@@ -32,9 +32,11 @@ pub struct App {
     obstacles: usize,
     particles: u64,
     particles_spawned: usize,
+    flip_after: Option<u32>,
 }
 
 impl App {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         terminal_width: u16,
         terminal_height: u16,
@@ -43,6 +45,7 @@ impl App {
         speed: usize,
         obstacles: usize,
         particles: u64,
+        flip_after: Option<u32>,
     ) -> Self {
         let rng = oorandom::Rand64::new(seed);
         let mut grid = Vec::new();
@@ -76,6 +79,7 @@ impl App {
             obstacles,
             particles,
             particles_spawned: 0,
+            flip_after,
         }
     }
 
@@ -86,7 +90,8 @@ impl App {
         let board_width = self.grid[0].len();
         let board_height = self.grid.len();
 
-        let mut i = 0;
+        let mut i: u32 = 1;
+
         while !self.exit {
             terminal.draw(|frame| self.draw(frame))?;
             let timeout = tick_rate.saturating_sub(last_tick.elapsed());
@@ -103,6 +108,12 @@ impl App {
             if last_tick.elapsed() >= tick_rate {
                 last_tick = Instant::now();
                 for _ in 0..self.speed {
+                    if let Some(n) = self.flip_after {
+                        if i % n == 0 {
+                            self.flip();
+                        }
+                    }
+
                     self.on_tick();
                     if i % 2 == 0 {
                         self.particles_spawned += 1;
@@ -113,7 +124,7 @@ impl App {
                             self.color = self.rng.rand_range(2..8) as u8;
                         }
                     }
-                    i += 1;
+                    i = i.wrapping_add(1);
                 }
                 if self.particles_spawned >= (board_height * board_width) {
                     self.reset();

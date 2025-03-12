@@ -105,6 +105,10 @@ enum Commands {
         /// Average number of particles to spawn before changing spawn point
         #[arg(short, long, value_name = "N", default_value_t = 100)]
         particles: u64,
+
+        /// Flip after n ticks
+        #[arg(short, long, value_name = "N")]
+        flip_after: Option<u32>,
     },
 }
 
@@ -157,6 +161,7 @@ fn main() -> Result<()> {
             speed,
             obstacles,
             particles,
+            flip_after,
         } => sand::App::new(
             size.width,
             size.height,
@@ -165,6 +170,7 @@ fn main() -> Result<()> {
             *speed,
             *obstacles,
             *particles,
+            *flip_after,
         )
         .run(terminal),
     };
