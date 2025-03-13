@@ -32,6 +32,7 @@ pub struct App {
     particles: u64,
     particles_spawned: usize,
     flip_after: Option<u32>,
+    obstacle_len: usize,
 }
 
 impl App {
@@ -43,6 +44,7 @@ impl App {
         seed: u128,
         speed: usize,
         obstacles: usize,
+        obstacle_len: usize,
         particles: u64,
         flip_after: Option<u32>,
     ) -> Self {
@@ -79,6 +81,7 @@ impl App {
             particles,
             particles_spawned: 0,
             flip_after,
+            obstacle_len,
         }
     }
 
@@ -144,18 +147,16 @@ impl App {
         self.spawn_point = self.rng.rand_range(0..board_width) as usize;
         self.color = self.random_color();
 
-        let bounds_x = (
-            (board_width as f64 * 0.02) as u64,
-            (board_width as f64 * 0.95) as u64,
-        );
+        let bounds_x = (0, board_width);
         let board_height = self.grid.len();
         let bounds_y = (
-            (board_height as f64 * 0.20) as u64,
-            (board_height as f64 * 0.85) as u64,
+            (board_height as f64 * 0.1) as u64,
+            (board_height as f64 * 0.90) as u64,
         );
         for _ in 0..self.obstacles {
-            let r = self.rng.rand_range(50..150) as f64;
-            let w = (board_width as f64 * r * 0.001) as i32;
+            let r = self.rng.rand_range(50..100) as f32 * 0.01;
+            let mut obstacle_len = (board_width as f64 * 0.15) as i32;
+            obstacle_len = (obstacle_len.min(self.obstacle_len as i32) as f32 * r) as i32;
 
             let x0 = self.rng.rand_range(bounds_x.0..bounds_x.1) as i32;
             let y0 = self.rng.rand_range(bounds_y.0..bounds_y.1) as i32;
@@ -170,7 +171,7 @@ impl App {
                 2 => 0.0,
                 _ => unreachable!(),
             };
-            for i in 0..w {
+            for i in 0..obstacle_len {
                 let x = (x0 + sign * i) as usize;
                 let y = (y0 + (y_mult * i as f64) as i32) as usize;
                 if x >= board_width as usize || y >= board_height {

@@ -102,6 +102,10 @@ enum Commands {
         #[arg(short, long, value_name = "N", default_value_t = 40)]
         obstacles: usize,
 
+        /// Length of obstacles
+        #[arg(short = 'l', long, value_name = "N", default_value_t = 5)]
+        obstacle_len: usize,
+
         /// Average number of particles to spawn before changing spawn point
         #[arg(short, long, value_name = "N", default_value_t = 100)]
         particles: u64,
@@ -160,6 +164,7 @@ fn main() -> Result<()> {
             seed,
             speed,
             obstacles,
+            obstacle_len,
             particles,
             flip_after,
         } => sand::App::new(
@@ -169,6 +174,7 @@ fn main() -> Result<()> {
             *seed,
             *speed,
             *obstacles,
+            *obstacle_len,
             *particles,
             *flip_after,
         )
