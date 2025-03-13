@@ -33,6 +33,7 @@ pub struct App {
     particles_spawned: usize,
     flip_after: Option<u32>,
     obstacle_len: usize,
+    is_emptying: bool,
 }
 
 impl App {
@@ -82,6 +83,7 @@ impl App {
             particles_spawned: 0,
             flip_after,
             obstacle_len,
+            is_emptying: false,
         }
     }
 
@@ -128,12 +130,22 @@ impl App {
                     }
                     i = i.wrapping_add(1);
                 }
+                if self.is_emptying {
+                    self.clear_floor();
+                }
                 if self.particles_spawned >= (board_height * board_width) {
                     self.reset();
                 }
             }
         }
         Ok(())
+    }
+
+    fn clear_floor(&mut self) {
+        let floor = self.grid.iter_mut().last().unwrap();
+        for c in floor.iter_mut() {
+            *c = None;
+        }
     }
 
     fn reset(&mut self) {
@@ -200,6 +212,7 @@ impl App {
         match key.code {
             KeyCode::Char('r') => self.reset(),
             KeyCode::Char('v') => self.flip(),
+            KeyCode::Char('e') => self.is_emptying = !self.is_emptying,
             KeyCode::Char('q') => self.exit = true,
             KeyCode::Char('Q') => self.exit = true,
             _ => (),
