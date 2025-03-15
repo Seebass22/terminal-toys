@@ -110,13 +110,9 @@ enum Commands {
         #[arg(short, long, value_name = "N", default_value_t = 100)]
         particles: u64,
 
-        /// Flip after n ticks
+        /// Flip after N ticks
         #[arg(short, long, value_name = "N")]
         flip_after: Option<u32>,
-
-        /// Empty instead of reset
-        #[arg(short, long)]
-        empty: bool,
 
         /// reset after sand emptied N times
         #[arg(short, long, value_name = "N", default_value_t = 3)]
@@ -175,7 +171,6 @@ fn main() -> Result<()> {
             obstacle_len,
             particles,
             flip_after,
-            empty,
             reset,
         } => sand::App::new(
             size.width,
@@ -187,7 +182,6 @@ fn main() -> Result<()> {
             *obstacle_len,
             *particles,
             *flip_after,
-            *empty,
             *reset,
         )
         .run(terminal),

@@ -37,7 +37,6 @@ pub struct App {
     is_emptying: bool,
     is_spawning: bool,
     hash_history: Vec<u64>,
-    empty_when_full: bool,
     empties_until_reset: usize,
     empties: usize,
 }
@@ -54,7 +53,6 @@ impl App {
         obstacle_len: usize,
         particles: u64,
         flip_after: Option<u32>,
-        empty_when_full: bool,
         empties_until_reset: usize,
     ) -> Self {
         let rng = oorandom::Rand64::new(seed);
@@ -94,7 +92,6 @@ impl App {
             is_emptying: false,
             is_spawning: true,
             hash_history: Vec::new(),
-            empty_when_full,
             empties_until_reset,
             empties: 0,
         }
@@ -147,19 +144,14 @@ impl App {
                     }
                     i = i.wrapping_add(1);
                 }
+
                 if self.is_emptying {
                     self.clear_floor();
                 }
-                if self.particles_spawned >= (board_height * board_width) {
-                    if self.empty_when_full {
-                        if !self.is_emptying {
-                            self.is_emptying = true;
-                            self.is_spawning = false;
-                            self.empties += 1;
-                        }
-                    } else {
-                        self.reset();
-                    }
+                if self.particles_spawned >= (board_height * board_width) && !self.is_emptying {
+                    self.is_emptying = true;
+                    self.is_spawning = false;
+                    self.empties += 1;
                 }
                 if self.is_emptying {
                     let hash = calculate_hash(&self.grid);
@@ -174,7 +166,7 @@ impl App {
                             self.is_emptying = false;
                             self.particles_spawned = n;
                             self.is_spawning = true;
-                            if self.empty_when_full && self.empties == self.empties_until_reset {
+                            if self.empties == self.empties_until_reset {
                                 self.reset();
                                 self.empties = 0;
                             }
