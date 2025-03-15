@@ -12,6 +12,7 @@ use ratatui::{
     },
     DefaultTerminal, Frame,
 };
+use std::hash::{DefaultHasher, Hash, Hasher};
 use std::time::{Duration, Instant};
 
 pub fn map_range(val: f64, in_min: f64, in_max: f64, out_min: f64, out_max: f64) -> f64 {
@@ -34,6 +35,9 @@ pub struct App {
     flip_after: Option<u32>,
     obstacle_len: usize,
     is_emptying: bool,
+    is_spawning: bool,
+    hash_history: Vec<u64>,
+    empty_when_full: bool,
 }
 
 impl App {
@@ -48,6 +52,7 @@ impl App {
         obstacle_len: usize,
         particles: u64,
         flip_after: Option<u32>,
+        empty_when_full: bool,
     ) -> Self {
         let rng = oorandom::Rand64::new(seed);
         let mut grid = Vec::new();
@@ -84,6 +89,9 @@ impl App {
             flip_after,
             obstacle_len,
             is_emptying: false,
+            is_spawning: true,
+            hash_history: Vec::new(),
+            empty_when_full,
         }
     }
 
@@ -112,13 +120,17 @@ impl App {
             if last_tick.elapsed() >= tick_rate {
                 last_tick = Instant::now();
                 for _ in 0..self.speed {
+                    self.on_tick();
+                    if !self.is_spawning {
+                        break;
+                    }
+
                     if let Some(n) = self.flip_after {
                         if i % n == 0 {
                             self.flip();
                         }
                     }
 
-                    self.on_tick();
                     if i % 2 == 0 {
                         self.particles_spawned += 1;
                         self.grid[0][self.spawn_point] = Some(self.color);
@@ -134,7 +146,31 @@ impl App {
                     self.clear_floor();
                 }
                 if self.particles_spawned >= (board_height * board_width) {
-                    self.reset();
+                    if self.empty_when_full {
+                        self.is_emptying = true;
+                        self.is_spawning = false;
+                    } else {
+                        self.reset();
+                    }
+                }
+                if self.is_emptying {
+                    let hash = calculate_hash(&self.grid);
+                    if self.hash_history.len() == 2 {
+                        if self.hash_history[0] == self.hash_history[1] {
+                            let n = self
+                                .grid
+                                .iter()
+                                .flatten()
+                                .filter(|c| c.is_some_and(|c| c != 1))
+                                .count();
+                            self.is_emptying = false;
+                            self.particles_spawned = n;
+                            self.is_spawning = true;
+                        }
+                        self.hash_history.rotate_left(1);
+                        self.hash_history.pop();
+                    }
+                    self.hash_history.push(hash);
                 }
             }
         }
@@ -212,7 +248,10 @@ impl App {
         match key.code {
             KeyCode::Char('r') => self.reset(),
             KeyCode::Char('v') => self.flip(),
-            KeyCode::Char('e') => self.is_emptying = !self.is_emptying,
+            KeyCode::Char('e') => {
+                self.is_emptying = !self.is_emptying;
+                self.is_spawning = !self.is_spawning;
+            }
             KeyCode::Char('q') => self.exit = true,
             KeyCode::Char('Q') => self.exit = true,
             _ => (),
@@ -301,4 +340,10 @@ impl App {
             .x_bounds([0.0, self.playground.x])
             .y_bounds([0.0, self.playground.y])
     }
+}
+
+fn calculate_hash<T: Hash>(t: &T) -> u64 {
+    let mut s = DefaultHasher::new();
+    t.hash(&mut s);
+    s.finish()
 }
