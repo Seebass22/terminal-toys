@@ -117,6 +117,10 @@ enum Commands {
         /// Empty instead of reset
         #[arg(short, long)]
         empty: bool,
+
+        /// reset after sand emptied N times
+        #[arg(short, long, value_name = "N", default_value_t = 3)]
+        reset: usize,
     },
 }
 
@@ -172,6 +176,7 @@ fn main() -> Result<()> {
             particles,
             flip_after,
             empty,
+            reset,
         } => sand::App::new(
             size.width,
             size.height,
@@ -183,6 +188,7 @@ fn main() -> Result<()> {
             *particles,
             *flip_after,
             *empty,
+            *reset,
         )
         .run(terminal),
     };

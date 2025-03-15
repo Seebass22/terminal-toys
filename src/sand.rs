@@ -38,6 +38,8 @@ pub struct App {
     is_spawning: bool,
     hash_history: Vec<u64>,
     empty_when_full: bool,
+    empties_until_reset: usize,
+    empties: usize,
 }
 
 impl App {
@@ -53,6 +55,7 @@ impl App {
         particles: u64,
         flip_after: Option<u32>,
         empty_when_full: bool,
+        empties_until_reset: usize,
     ) -> Self {
         let rng = oorandom::Rand64::new(seed);
         let mut grid = Vec::new();
@@ -92,6 +95,8 @@ impl App {
             is_spawning: true,
             hash_history: Vec::new(),
             empty_when_full,
+            empties_until_reset,
+            empties: 0,
         }
     }
 
@@ -147,8 +152,11 @@ impl App {
                 }
                 if self.particles_spawned >= (board_height * board_width) {
                     if self.empty_when_full {
-                        self.is_emptying = true;
-                        self.is_spawning = false;
+                        if !self.is_emptying {
+                            self.is_emptying = true;
+                            self.is_spawning = false;
+                            self.empties += 1;
+                        }
                     } else {
                         self.reset();
                     }
@@ -166,6 +174,12 @@ impl App {
                             self.is_emptying = false;
                             self.particles_spawned = n;
                             self.is_spawning = true;
+                            if self.empty_when_full && self.empties == self.empties_until_reset {
+                                self.reset();
+                                self.empties = 0;
+                            }
+                            self.hash_history[0] = 1;
+                            self.hash_history[1] = 2;
                         }
                         self.hash_history.rotate_left(1);
                         self.hash_history.pop();
