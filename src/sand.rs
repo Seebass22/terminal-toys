@@ -135,9 +135,24 @@ impl App {
 
                     if i % 2 == 0 {
                         self.particles_spawned += 1;
+                        let width = self.grid[0].len() as u64;
+                        let mut found = false;
+                        'reset_spawn: for _ in 0..3 {
+                            if self.grid[0][self.spawn_point].is_none() {
+                                found = true;
+                                break 'reset_spawn;
+                            } else {
+                                self.spawn_point = self.rng.rand_range(0..width) as usize;
+                                self.color = self.random_color();
+                            }
+                        }
+                        if !found {
+                            self.start_emptying();
+                        }
+
                         self.grid[0][self.spawn_point] = Some(self.color);
+
                         if self.rng.rand_range(0..self.particles) == 0 {
-                            let width = self.grid[0].len() as u64;
                             self.spawn_point = self.rng.rand_range(0..width) as usize;
                             self.color = self.random_color();
                         }
@@ -149,9 +164,7 @@ impl App {
                     self.clear_floor();
                 }
                 if self.particles_spawned >= (board_height * board_width) && !self.is_emptying {
-                    self.is_emptying = true;
-                    self.is_spawning = false;
-                    self.empties += 1;
+                    self.start_emptying();
                 }
                 if self.is_emptying {
                     let hash = calculate_hash(&self.grid);
@@ -181,6 +194,12 @@ impl App {
             }
         }
         Ok(())
+    }
+
+    fn start_emptying(&mut self) {
+        self.is_emptying = true;
+        self.is_spawning = false;
+        self.empties += 1;
     }
 
     fn clear_floor(&mut self) {
