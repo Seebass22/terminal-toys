@@ -21,7 +21,7 @@ cargo install --git https://github.com/Seebass22/terminal-toys
 ```
 
 ## Usage
-List all screensavers by running without `terminal-toys` without arguments (or with `--help`, `-h` or `help`)
+List all screensavers by running `terminal-toys` without arguments (or with `--help`, `-h` or `help`)
 ```
 $ terminal-toys -h
 Usage: terminal-toys <COMMAND>
