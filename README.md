@@ -2,6 +2,7 @@
 A collection of terminal screensavers
 
 ![screenshot](https://github.com/user-attachments/assets/61bcb66a-4963-4dc5-8b90-c21736f5cce2)
+
 ## Screensavers
 ### 3d pipes
 https://github.com/user-attachments/assets/e2425ca8-b1fd-46b0-895c-74e3edbf159c
@@ -17,7 +18,7 @@ https://github.com/user-attachments/assets/c1acfead-9885-4aa2-a81d-e784d26ea62d
 ## Installation
 Install Rust if you don't have it yet: https://rustup.rs/
 ```
-cargo install --git https://github.com/Seebass22/terminal-toys
+cargo install terminal-toys
 ```
 
 ## Usage

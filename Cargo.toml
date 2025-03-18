@@ -4,6 +4,10 @@ version = "0.1.0"
 authors = ["Sebastian Thuemmel <sebastianthuemmel@yahoo.ca>"]
 license = "MIT"
 edition = "2021"
+description = "terminal-toys is a collection of screensavers for the terminal."
+repository = "https://github.com/Seebass22/terminal-toys"
+keywords = ["terminal", "screensaver", "ratatui"]
+categories = ["command-line-utilities"]
 
 [dependencies]
 clap = { version = "4.5.26", features = ["derive"] }
