@@ -36,7 +36,7 @@ enum Commands {
         marker: Marker,
 
         /// Number of segments to generate before reset
-        #[arg(short = 'n', long, value_name = "SEGMENTS", default_value_t = 20000)]
+        #[arg(short = 'n', long, value_name = "SEGMENTS", default_value_t = 2000)]
         max_segments: u32,
 
         #[arg(short, long, value_name = "MILLISECONDS", default_value_t = 8)]
