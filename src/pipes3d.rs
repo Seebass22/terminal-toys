@@ -1,3 +1,4 @@
+use crate::utils::map_range;
 use color_eyre::Result;
 use crossterm::event::KeyEventKind;
 use glam::{DVec2, DVec3};
@@ -87,7 +88,13 @@ impl App {
         }
     }
 
-    pub fn run(mut self, mut terminal: DefaultTerminal, tick_rate: u64, seed: u64) -> Result<()> {
+    pub fn run(
+        mut self,
+        mut terminal: DefaultTerminal,
+        tick_rate: u64,
+        seed: u64,
+        camera_speed: f64,
+    ) -> Result<()> {
         let tick_rate = Duration::from_millis(tick_rate);
         let mut last_tick = Instant::now();
         let mut rng = oorandom::Rand32::new(seed);
@@ -96,6 +103,8 @@ impl App {
             y: 0.0,
             z: 0.0,
         };
+        let follow_speed = map_range(camera_speed, 0.0, 10.0, 0.0, 0.01).clamp(0.0, 1.0);
+
         while !self.exit {
             terminal.draw(|frame| self.draw(frame))?;
             let timeout = tick_rate.saturating_sub(last_tick.elapsed());
@@ -119,7 +128,7 @@ impl App {
                     *self.points.last().unwrap()
                 };
                 let direction = last_point - self.camera_position;
-                self.camera_position += direction * 0.01;
+                self.camera_position += direction * follow_speed;
                 self.on_tick();
                 last_tick = Instant::now();
                 if self.tick_count % 2 == 0 && (self.points.len() as u32) < self.max_segments {
