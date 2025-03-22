@@ -3,6 +3,7 @@ mod life;
 mod pipes3d;
 mod sand;
 mod splits;
+mod utils;
 
 use color_eyre::Result;
 

@@ -1,3 +1,4 @@
+use crate::utils::{calculate_hash, map_range};
 use color_eyre::Result;
 use crossterm::event::KeyEventKind;
 use glam::DVec2;
@@ -12,18 +13,7 @@ use ratatui::{
     },
     DefaultTerminal, Frame,
 };
-use std::hash::{DefaultHasher, Hash, Hasher};
 use std::time::{Duration, Instant};
-
-pub fn map_range(val: f64, in_min: f64, in_max: f64, out_min: f64, out_max: f64) -> f64 {
-    (val - in_min) / (in_max - in_min) * (out_max - out_min) + out_min
-}
-
-fn calculate_hash<T: Hash>(t: &T) -> u64 {
-    let mut s = DefaultHasher::new();
-    t.hash(&mut s);
-    s.finish()
-}
 
 pub struct App {
     grid: Vec<Vec<(bool, u8)>>,
