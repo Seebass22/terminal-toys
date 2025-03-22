@@ -74,11 +74,7 @@ impl App {
             playground: Rect::new(0, 0, width as u16, height as u16),
             points: Vec::with_capacity(max_segments as usize),
             tick_count: 0,
-            camera_position: DVec3 {
-                x: 0.0,
-                y: 0.0,
-                z: 0.0,
-            },
+            camera_position: DVec3::default(),
             marker,
             debug_text: String::new(),
             previous_index: 0,
@@ -121,12 +117,14 @@ impl App {
             if last_tick.elapsed() >= tick_rate {
                 if self.points.len() as u32 >= self.max_segments {
                     self.reset();
+                    current_point = DVec3::default();
                 }
                 let last_point = if self.points.is_empty() {
                     DVec3::default()
                 } else {
                     *self.points.last().unwrap()
                 };
+
                 let direction = last_point - self.camera_position;
                 self.camera_position += direction * follow_speed;
                 self.on_tick();
@@ -152,6 +150,7 @@ impl App {
 
     fn reset(&mut self) {
         self.points.clear();
+        self.camera_position = DVec3::default();
     }
 
     fn handle_key_press(&mut self, key: event::KeyEvent) {
