@@ -55,6 +55,7 @@ pub struct App {
     max_segments: u32,
     orthographic: bool,
     val: f64,
+    rotate: bool,
 }
 
 impl App {
@@ -64,6 +65,7 @@ impl App {
         marker: Marker,
         max_segments: u32,
         orthographic: bool,
+        rotate: bool,
     ) -> Self {
         let scale_factor = terminal_height as f32 / terminal_width as f32;
         let font_scale_factor = 2.0;
@@ -81,6 +83,7 @@ impl App {
             max_segments,
             orthographic,
             val: 0.01,
+            rotate,
         }
     }
 
@@ -116,8 +119,13 @@ impl App {
 
             if last_tick.elapsed() >= tick_rate {
                 if self.points.len() as u32 >= self.max_segments {
-                    self.reset();
-                    current_point = DVec3::default();
+                    if self.rotate {
+                        self.points.rotate_left(1);
+                        self.points.pop();
+                    } else {
+                        self.reset();
+                        current_point = DVec3::default();
+                    }
                 }
                 let last_point = if self.points.is_empty() {
                     DVec3::default()

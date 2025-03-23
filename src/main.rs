@@ -53,6 +53,10 @@ enum Commands {
         /// Camera speed
         #[arg(short = 'x', long, value_name = "SPEED", default_value_t = 4.0)]
         camera_speed: f64,
+
+        /// Instead of resetting, delete earlier segments
+        #[arg(short, long, default_value_t = false)]
+        rotate: bool,
     },
     /// Lines that split after a while
     Splits {
@@ -141,12 +145,14 @@ fn main() -> Result<()> {
             seed,
             orthographic,
             camera_speed,
+            rotate,
         } => pipes3d::App::new(
             size.width,
             size.height,
             *marker,
             *max_segments,
             *orthographic,
+            *rotate,
         )
         .run(terminal, *tick_rate, *seed, *camera_speed),
         Commands::Splits {
