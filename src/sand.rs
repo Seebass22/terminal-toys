@@ -1,4 +1,4 @@
-use crate::utils::{calculate_hash, map_range};
+use crate::utils::{calculate_hash, is_quit_key, map_range};
 use color_eyre::Result;
 use crossterm::event::KeyEventKind;
 use glam::DVec2;
@@ -272,9 +272,11 @@ impl App {
                 self.is_emptying = !self.is_emptying;
                 self.is_spawning = !self.is_spawning;
             }
-            KeyCode::Char('q') => self.exit = true,
-            KeyCode::Char('Q') => self.exit = true,
-            _ => (),
+            _ => {
+                if is_quit_key(key) {
+                    self.exit = true;
+                }
+            }
         }
     }
 

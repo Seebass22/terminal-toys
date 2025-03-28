@@ -1,4 +1,4 @@
-use crate::utils::map_range;
+use crate::utils::{is_quit_key, map_range};
 use color_eyre::Result;
 use crossterm::event::KeyEventKind;
 use glam::{DVec2, DVec3};
@@ -166,11 +166,13 @@ impl App {
             return;
         }
         match key.code {
-            KeyCode::Char('q') => self.exit = true,
-            KeyCode::Char('Q') => self.exit = true,
             KeyCode::Char('a') => self.val += 0.001,
             KeyCode::Char('d') => self.val -= 0.001,
-            _ => (),
+            _ => {
+                if is_quit_key(key) {
+                    self.exit = true;
+                }
+            }
         }
     }
 

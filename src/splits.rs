@@ -1,9 +1,10 @@
+use crate::utils::is_quit_key;
 use color_eyre::Result;
 use crossterm::event::KeyEventKind;
 use glam::DVec2;
 use oorandom::Rand64;
 use ratatui::{
-    crossterm::event::{self, Event, KeyCode},
+    crossterm::event::{self, Event},
     layout::Rect,
     style::Color,
     symbols::Marker,
@@ -161,10 +162,8 @@ impl App {
         if key.kind != KeyEventKind::Press {
             return;
         }
-        match key.code {
-            KeyCode::Char('q') => self.exit = true,
-            KeyCode::Char('Q') => self.exit = true,
-            _ => (),
+        if is_quit_key(key) {
+            self.exit = true;
         }
     }
 
