@@ -123,12 +123,6 @@ impl App {
                         break;
                     }
 
-                    if let Some(n) = self.flip_after {
-                        if i % n == 0 {
-                            self.flip();
-                        }
-                    }
-
                     if i % 2 == 0 {
                         self.particles_spawned += 1;
                         let width = self.grid[0].len() as u64;
@@ -151,6 +145,11 @@ impl App {
                         if self.rng.rand_range(0..self.particles) == 0 {
                             self.spawn_point = self.rng.rand_range(0..width) as usize;
                             self.color = self.random_color();
+                        }
+                    }
+                    if let Some(n) = self.flip_after {
+                        if i % n == 0 {
+                            self.flip();
                         }
                     }
                     i = i.wrapping_add(1);
