@@ -27,7 +27,6 @@ pub struct App {
     speed: usize,
     obstacles: usize,
     particles: u64,
-    particles_spawned: usize,
     flip_after: Option<u32>,
     obstacle_len: usize,
     is_emptying: bool,
@@ -82,7 +81,6 @@ impl App {
             speed,
             obstacles,
             particles,
-            particles_spawned: 0,
             flip_after,
             obstacle_len,
             is_emptying: false,
@@ -97,9 +95,6 @@ impl App {
         let tick_rate = Duration::from_millis(8);
         let mut last_tick = Instant::now();
         self.reset();
-        let board_width = self.grid[0].len();
-        let board_height = self.grid.len();
-
         let mut i: u32 = 1;
 
         while !self.exit {
@@ -124,7 +119,6 @@ impl App {
                     }
 
                     if i % 2 == 0 {
-                        self.particles_spawned += 1;
                         let width = self.grid[0].len() as u64;
                         let mut found = false;
                         'reset_spawn: for _ in 0..3 {
@@ -158,21 +152,11 @@ impl App {
                 if self.is_emptying {
                     self.clear_floor();
                 }
-                if self.particles_spawned >= (board_height * board_width) && !self.is_emptying {
-                    self.start_emptying();
-                }
                 if self.is_emptying {
                     let hash = calculate_hash(&self.grid);
                     if self.hash_history.len() == 2 {
                         if self.hash_history[0] == self.hash_history[1] {
-                            let n = self
-                                .grid
-                                .iter()
-                                .flatten()
-                                .filter(|c| c.is_some_and(|c| c != 1))
-                                .count();
                             self.is_emptying = false;
-                            self.particles_spawned = n;
                             self.is_spawning = true;
                             if self.empties == self.empties_until_reset {
                                 self.reset();
@@ -205,7 +189,6 @@ impl App {
     }
 
     fn reset(&mut self) {
-        self.particles_spawned = 0;
         for line in self.grid.iter_mut() {
             for val in line.iter_mut() {
                 *val = None;
