@@ -2,7 +2,6 @@ use crate::utils::is_quit_key;
 use color_eyre::Result;
 use crossterm::event::KeyEventKind;
 use glam::DVec2;
-use oorandom::Rand64;
 use ratatui::{
     crossterm::event::{self, Event},
     style::Color,
@@ -21,13 +20,11 @@ pub struct App {
     playground: DVec2,
     debug_text: String,
     marker: Marker,
-    rng: Rand64,
 }
 
 impl App {
     #[allow(clippy::too_many_arguments)]
-    pub fn new(terminal_width: u16, terminal_height: u16, marker: Marker, seed: u128) -> Self {
-        let rng = oorandom::Rand64::new(seed);
+    pub fn new(terminal_width: u16, terminal_height: u16, marker: Marker) -> Self {
         let mut grid = Vec::new();
 
         let (board_width, board_height) = match marker {
@@ -40,9 +37,7 @@ impl App {
         };
 
         for _ in 0..board_height {
-            let mut line = Vec::new();
-            line.resize(board_width, 0);
-            grid.push(line);
+            grid.push(vec![0; board_width]);
         }
 
         Self {
@@ -51,7 +46,6 @@ impl App {
             playground: DVec2::new(board_width as f64, board_height as f64),
             marker,
             debug_text: String::new(),
-            rng,
         }
     }
 
@@ -95,7 +89,7 @@ impl App {
         if self.grid.is_empty() {
             return;
         }
-        let i = i / 10;
+        let i = i as f64 / 35.0;
         let height = self.grid.len();
         let width = self.grid[0].len();
         let mid_y = height / 2;
@@ -105,11 +99,12 @@ impl App {
                 let x2 = x as f64 - mid_x as f64;
                 let y2 = y as f64 - mid_y as f64;
                 let angle = y2.atan2(x2);
-                let a = (std::f64::consts::PI + angle) * 2.546;
+                let a = (std::f64::consts::PI + angle) * 1.117;
                 let n_colors = 7;
 
-                let r = (x2.powf(2.0) + y2.powf(2.0)).sqrt();
-                let c = (a as u32 + i - (r * 0.10) as u32) % n_colors;
+                let r = 3.0 * i + (x2.powf(2.0) + y2.powf(2.0)).sqrt();
+                let a2 = a + i;
+                let c = (a2 as u32 - (r * 0.10) as u32) % n_colors;
                 self.grid[y][x] = 1 + c as u8;
             }
         }

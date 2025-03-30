@@ -132,10 +132,6 @@ enum Commands {
         /// Marker type (Braille, Dot, Bar, Block, HalfBlock)
         #[arg(short, long, value_name = "TYPE", default_value_t = Marker::HalfBlock)]
         marker: Marker,
-
-        /// RNG seed
-        #[arg(short, long, value_name = "SEED", default_value_t = 0)]
-        seed: u128,
     },
 }
 
@@ -207,8 +203,8 @@ fn main() -> Result<()> {
             *reset,
         )
         .run(terminal),
-        Commands::Tunnel { marker, seed } => {
-            tunnel::App::new(size.width, size.height, *marker, *seed).run(terminal)
+        Commands::Tunnel { marker } => {
+            tunnel::App::new(size.width, size.height, *marker).run(terminal)
         }
     };
     ratatui::restore();
