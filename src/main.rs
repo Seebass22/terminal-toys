@@ -3,6 +3,7 @@ mod life;
 mod pipes3d;
 mod sand;
 mod splits;
+mod tunnel;
 mod utils;
 
 use color_eyre::Result;
@@ -127,6 +128,15 @@ enum Commands {
         #[arg(short, long, value_name = "N", default_value_t = 3)]
         reset: usize,
     },
+    Tunnel {
+        /// Marker type (Braille, Dot, Bar, Block, HalfBlock)
+        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::HalfBlock)]
+        marker: Marker,
+
+        /// RNG seed
+        #[arg(short, long, value_name = "SEED", default_value_t = 0)]
+        seed: u128,
+    },
 }
 
 fn main() -> Result<()> {
@@ -197,6 +207,9 @@ fn main() -> Result<()> {
             *reset,
         )
         .run(terminal),
+        Commands::Tunnel { marker, seed } => {
+            tunnel::App::new(size.width, size.height, *marker, *seed).run(terminal)
+        }
     };
     ratatui::restore();
     app_result
