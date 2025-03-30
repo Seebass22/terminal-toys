@@ -3,6 +3,7 @@ mod life;
 mod pipes3d;
 mod sand;
 mod splits;
+mod tunnel;
 mod utils;
 
 use color_eyre::Result;
@@ -127,6 +128,24 @@ enum Commands {
         #[arg(short, long, value_name = "N", default_value_t = 3)]
         reset: usize,
     },
+    /// Rotating tunnel
+    Tunnel {
+        /// Marker type (Braille, Dot, Bar, Block, HalfBlock)
+        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::HalfBlock)]
+        marker: Marker,
+
+        /// Number of colors
+        #[arg(short, long, value_name = "N", default_value_t = 16)]
+        n_colors: u8,
+
+        /// Rotation speed
+        #[arg(short = 'x', long, value_name = "SPEED", default_value_t = 1.0)]
+        speed: f64,
+
+        /// Amount of depth (0, 1, 2)
+        #[arg(short, long, default_value_t = 1)]
+        depth: u8,
+    },
 }
 
 fn main() -> Result<()> {
@@ -197,6 +216,13 @@ fn main() -> Result<()> {
             *reset,
         )
         .run(terminal),
+        Commands::Tunnel {
+            marker,
+            n_colors,
+            speed,
+            depth,
+        } => tunnel::App::new(size.width, size.height, *marker, *n_colors, *speed, *depth)
+            .run(terminal),
     };
     ratatui::restore();
     app_result
