@@ -132,6 +132,14 @@ enum Commands {
         /// Marker type (Braille, Dot, Bar, Block, HalfBlock)
         #[arg(short, long, value_name = "TYPE", default_value_t = Marker::HalfBlock)]
         marker: Marker,
+
+        /// Number of colors
+        #[arg(short, long, value_name = "N", default_value_t = 16)]
+        n_colors: u8,
+
+        /// Rotation speed
+        #[arg(short = 'x', long, value_name = "SPEED", default_value_t = 1.0)]
+        speed: f64,
     },
 }
 
@@ -203,9 +211,11 @@ fn main() -> Result<()> {
             *reset,
         )
         .run(terminal),
-        Commands::Tunnel { marker } => {
-            tunnel::App::new(size.width, size.height, *marker).run(terminal)
-        }
+        Commands::Tunnel {
+            marker,
+            n_colors,
+            speed,
+        } => tunnel::App::new(size.width, size.height, *marker, *n_colors, *speed).run(terminal),
     };
     ratatui::restore();
     app_result

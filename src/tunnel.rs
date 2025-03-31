@@ -21,11 +21,19 @@ pub struct App {
     playground: DVec2,
     debug_text: String,
     marker: Marker,
+    n_colors: u8,
+    rotation_speed: f64,
 }
 
 impl App {
     #[allow(clippy::too_many_arguments)]
-    pub fn new(terminal_width: u16, terminal_height: u16, marker: Marker) -> Self {
+    pub fn new(
+        terminal_width: u16,
+        terminal_height: u16,
+        marker: Marker,
+        n_colors: u8,
+        rotation_speed: f64,
+    ) -> Self {
         let mut grid = Vec::new();
 
         let (board_width, board_height) = match marker {
@@ -47,6 +55,8 @@ impl App {
             playground: DVec2::new(board_width as f64, board_height as f64),
             marker,
             debug_text: String::new(),
+            n_colors,
+            rotation_speed,
         }
     }
 
@@ -90,7 +100,7 @@ impl App {
         if self.grid.is_empty() {
             return;
         }
-        let i = i as f64 / 35.0;
+        let i = i as f64 * 0.03 * self.rotation_speed;
         let height = self.grid.len();
         let width = self.grid[0].len();
         let mid_y = height / 2;
@@ -100,12 +110,11 @@ impl App {
                 let x2 = x as f64 - mid_x as f64;
                 let y2 = y as f64 - mid_y as f64;
                 let angle = y2.atan2(x2);
-                let n_colors = 12;
-                let a = (PI + angle) * n_colors as f64 / (2.0 * PI);
+                let a = (PI + angle) * self.n_colors as f64 / (2.0 * PI);
 
                 let r = 3.0 * i + (x2.powf(2.0) + y2.powf(2.0)).sqrt();
                 let a2 = a + i;
-                let c = (a2 as u32 - (r * 0.10) as u32) % n_colors;
+                let c = (a2 as u32 - (r * 0.10) as u32) % self.n_colors as u32;
                 self.grid[y][x] = c as u8;
             }
         }
