@@ -12,6 +12,7 @@ use ratatui::{
     },
     DefaultTerminal, Frame,
 };
+use std::f64::consts::PI;
 use std::time::{Duration, Instant};
 
 pub struct App {
@@ -99,13 +100,13 @@ impl App {
                 let x2 = x as f64 - mid_x as f64;
                 let y2 = y as f64 - mid_y as f64;
                 let angle = y2.atan2(x2);
-                let a = (std::f64::consts::PI + angle) * 1.117;
-                let n_colors = 7;
+                let n_colors = 12;
+                let a = (PI + angle) * n_colors as f64 / (2.0 * PI);
 
                 let r = 3.0 * i + (x2.powf(2.0) + y2.powf(2.0)).sqrt();
                 let a2 = a + i;
                 let c = (a2 as u32 - (r * 0.10) as u32) % n_colors;
-                self.grid[y][x] = 1 + c as u8;
+                self.grid[y][x] = c as u8;
             }
         }
     }
