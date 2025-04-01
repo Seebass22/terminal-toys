@@ -140,6 +140,10 @@ enum Commands {
         /// Rotation speed
         #[arg(short = 'x', long, value_name = "SPEED", default_value_t = 1.0)]
         speed: f64,
+
+        /// Disable depth
+        #[arg(short = 'D', long, default_value_t = false)]
+        no_depth: bool,
     },
 }
 
@@ -215,7 +219,16 @@ fn main() -> Result<()> {
             marker,
             n_colors,
             speed,
-        } => tunnel::App::new(size.width, size.height, *marker, *n_colors, *speed).run(terminal),
+            no_depth,
+        } => tunnel::App::new(
+            size.width,
+            size.height,
+            *marker,
+            *n_colors,
+            *speed,
+            !*no_depth,
+        )
+        .run(terminal),
     };
     ratatui::restore();
     app_result
