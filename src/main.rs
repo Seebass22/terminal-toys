@@ -128,6 +128,7 @@ enum Commands {
         #[arg(short, long, value_name = "N", default_value_t = 3)]
         reset: usize,
     },
+    /// Rotating tunnel
     Tunnel {
         /// Marker type (Braille, Dot, Bar, Block, HalfBlock)
         #[arg(short, long, value_name = "TYPE", default_value_t = Marker::HalfBlock)]
