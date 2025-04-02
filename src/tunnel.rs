@@ -23,7 +23,7 @@ pub struct App {
     marker: Marker,
     n_colors: u8,
     rotation_speed: f64,
-    depth: bool,
+    depth: u8,
 }
 
 impl App {
@@ -34,7 +34,7 @@ impl App {
         marker: Marker,
         n_colors: u8,
         rotation_speed: f64,
-        depth: bool,
+        depth: u8,
     ) -> Self {
         let mut grid = Vec::new();
 
@@ -115,11 +115,12 @@ impl App {
                 let angle = y2.atan2(x2);
                 let a = (PI + angle) * self.n_colors as f64 / (2.0 * PI);
 
-                let r = if self.depth {
-                    3.0 * i + 20.0 * ((x2.powf(2.0) + y2.powf(2.0)).sqrt()).log2()
-                } else {
-                    3.0 * i + (x2.powf(2.0) + y2.powf(2.0)).sqrt()
+                let r = match self.depth {
+                    0 => 3.0 * i + (x2.powf(2.0) + y2.powf(2.0)).sqrt(),
+                    1 => 3.0 * i + 20.0 * ((x2.powf(2.0) + y2.powf(2.0)).sqrt()).log2(),
+                    _ => 3.0 * i + 500.0 / (x2.powf(2.0) + y2.powf(2.0)).sqrt(),
                 };
+
                 let a2 = a + i;
                 let c = (a2 as u32 - (r * 0.10) as u32) % self.n_colors as u32;
                 self.grid[y][x] = c as u8;
