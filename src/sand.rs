@@ -54,12 +54,11 @@ impl App {
         let mut grid = Vec::new();
 
         let (board_width, board_height) = match marker {
-            Marker::HalfBlock => (terminal_width as usize, (terminal_height * 2) as usize),
             Marker::Braille => (
                 (terminal_width * 2) as usize,
                 (terminal_height * 4) as usize,
             ),
-            _ => (terminal_width as usize, terminal_height as usize),
+            _ => (terminal_width as usize, (terminal_height * 2) as usize),
         };
 
         for _ in 0..board_height {
