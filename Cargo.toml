@@ -17,3 +17,8 @@ glam = "0.29.2"
 itertools = "0.14.0"
 oorandom = "11.1.4"
 ratatui = "0.29.0"
+
+# The profile that 'dist' will build with
+[profile.dist]
+inherits = "release"
+lto = "thin"
