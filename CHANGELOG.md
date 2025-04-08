@@ -1,3 +1,23 @@
+# v0.3.0
+
+## new screensaver: tunnel
+A rotating and moving tunnel.
+
+The `--depth <DEPTH>` option controls the 3d effect.
+
+`--depth 0` = no 3d
+
+`--depth 1` = slight 3d effect
+
+`--depth 2` = proper 3d effect
+
+The default is 1 as it works better on smaller terminals than 2.
+
+The number of colors and segments can be set with the `-n <N>` option and speed with `-x <SPEED>`.
+
+## sand
+* Changed scaling for `Block`, `Bar` or `Dot` characters so each character represents 2 pixels
+
 # v0.2.0
 
 ## all screensavers
