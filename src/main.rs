@@ -1,3 +1,4 @@
+mod ant;
 mod balls;
 mod life;
 mod pipes3d;
@@ -146,6 +147,20 @@ enum Commands {
         #[arg(short, long, default_value_t = 1)]
         depth: u8,
     },
+    /// Langton's Ant
+    Ant {
+        /// Marker type (Braille, Dot, Bar, Block, HalfBlock)
+        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::HalfBlock)]
+        marker: Marker,
+
+        /// Width of board (default: terminal width)
+        #[arg(short, long, value_name = "WIDTH")]
+        width: Option<usize>,
+
+        /// Speed multiplier
+        #[arg(short = 'x', long, value_name = "MULT", default_value_t = 1)]
+        speed: usize,
+    },
 }
 
 fn main() -> Result<()> {
@@ -223,6 +238,11 @@ fn main() -> Result<()> {
             depth,
         } => tunnel::App::new(size.width, size.height, *marker, *n_colors, *speed, *depth)
             .run(terminal),
+        Commands::Ant {
+            marker,
+            speed,
+            width,
+        } => ant::App::new(size.width, size.height, *marker, *speed, *width).run(terminal),
     };
     ratatui::restore();
     app_result
