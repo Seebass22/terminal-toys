@@ -164,6 +164,10 @@ enum Commands {
         /// Number of colors
         #[arg(short, long, value_name = "N", default_value_t = 16, value_parser = clap::value_parser!(u8).range(2..))]
         n_colors: u8,
+
+        /// Step distance = color
+        #[arg(short, long, default_value_t = false)]
+        dist_by_color: bool,
     },
 }
 
@@ -247,9 +251,17 @@ fn main() -> Result<()> {
             speed,
             width,
             n_colors,
-        } => {
-            ant::App::new(size.width, size.height, *marker, *speed, *width, *n_colors).run(terminal)
-        }
+            dist_by_color,
+        } => ant::App::new(
+            size.width,
+            size.height,
+            *marker,
+            *speed,
+            *width,
+            *n_colors,
+            *dist_by_color,
+        )
+        .run(terminal),
     };
     ratatui::restore();
     app_result

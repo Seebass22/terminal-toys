@@ -25,6 +25,7 @@ pub struct App {
     ant: (u8, usize, usize),
     speed: usize,
     n_colors: u8,
+    dist_by_color: bool,
 }
 
 impl App {
@@ -35,6 +36,7 @@ impl App {
         speed: usize,
         board_width: Option<usize>,
         n_colors: u8,
+        dist_by_color: bool,
     ) -> Self {
         let scale_factor = terminal_height as f32 / terminal_width as f32;
         let font_scale_factor = 2.0;
@@ -73,6 +75,7 @@ impl App {
             ant: (0, board_width / 2, board_height / 2),
             speed,
             n_colors,
+            dist_by_color,
         }
     }
 
@@ -153,11 +156,18 @@ impl App {
         } else {
             dir = (dir as i32 - 1).rem_euclid(4) as u8;
         }
+
+        let dist = if self.dist_by_color {
+            current_color as usize
+        } else {
+            1
+        };
+
         match dir {
-            0 => y = (y + 1) % board_height,
-            1 => x = (x + 1) % board_width,
-            2 => y = (y as i32 - 1).rem_euclid(board_height as i32) as usize,
-            3 => x = (x as i32 - 1).rem_euclid(board_width as i32) as usize,
+            0 => y = (y + dist) % board_height,
+            1 => x = (x + dist) % board_width,
+            2 => y = (y as i32 - dist as i32).rem_euclid(board_height as i32) as usize,
+            3 => x = (x as i32 - dist as i32).rem_euclid(board_width as i32) as usize,
             _ => unreachable!(),
         }
         self.ant = (dir, x, y);
