@@ -97,6 +97,13 @@ impl App {
                 for _ in 0..self.speed {
                     self.on_tick();
                 }
+                let board_height = self.grid.len();
+                let board_width = self.grid[0].len();
+                let n_touched = self.grid.iter().flatten().filter(|p| p.1 > 1).count();
+                let percentage_touched = n_touched as f32 / (board_width * board_height) as f32;
+                if percentage_touched > 0.9 {
+                    self.reset();
+                }
                 last_tick = Instant::now();
             }
         }
