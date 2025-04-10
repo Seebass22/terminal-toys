@@ -148,10 +148,7 @@ impl App {
 
         if square_is_black {
             dir = (dir + 1) % 4;
-            let new_color = match (current_color + 1) % (self.n_colors as u16) {
-                0 => 1,
-                x => x as u8,
-            };
+            let new_color = (current_color + 1).clamp(0, self.n_colors as u16 - 1) as u8;
             self.grid[y][x].1 = new_color;
         } else {
             dir = (dir as i32 - 1).rem_euclid(4) as u8;
