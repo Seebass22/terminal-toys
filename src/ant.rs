@@ -24,6 +24,7 @@ pub struct App {
     pixel: bool,
     ant: (u8, usize, usize),
     speed: usize,
+    n_colors: u8,
 }
 
 impl App {
@@ -33,6 +34,7 @@ impl App {
         marker: Marker,
         speed: usize,
         board_width: Option<usize>,
+        n_colors: u8,
     ) -> Self {
         let scale_factor = terminal_height as f32 / terminal_width as f32;
         let font_scale_factor = 2.0;
@@ -56,7 +58,7 @@ impl App {
 
         for _ in 0..board_height {
             let mut line = Vec::new();
-            line.resize(board_width, (false, 0));
+            line.resize(board_width, (false, 1));
             grid.push(line);
         }
 
@@ -70,6 +72,7 @@ impl App {
             pixel,
             ant: (0, board_width / 2, board_height / 2),
             speed,
+            n_colors,
         }
     }
 
@@ -104,7 +107,7 @@ impl App {
         self.is_sim_running = false;
         for line in self.grid.iter_mut() {
             for val in line.iter_mut() {
-                *val = (false, 0);
+                *val = (false, 1);
             }
         }
     }
@@ -133,9 +136,16 @@ impl App {
         let (mut dir, mut x, mut y) = self.ant;
         let square_is_black = self.grid[y][x].0;
         self.grid[y][x].0 = !self.grid[y][x].0;
-        self.grid[y][x].1 += 1;
+
+        let current_color = self.grid[y][x].1 as u16;
+
         if square_is_black {
             dir = (dir + 1) % 4;
+            let new_color = match (current_color + 1) % (self.n_colors as u16) {
+                0 => 1,
+                x => x as u8,
+            };
+            self.grid[y][x].1 = new_color;
         } else {
             dir = (dir as i32 - 1).rem_euclid(4) as u8;
         }

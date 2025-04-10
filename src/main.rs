@@ -160,6 +160,10 @@ enum Commands {
         /// Speed multiplier
         #[arg(short = 'x', long, value_name = "MULT", default_value_t = 1)]
         speed: usize,
+
+        /// Number of colors
+        #[arg(short, long, value_name = "N", default_value_t = 16, value_parser = clap::value_parser!(u8).range(2..))]
+        n_colors: u8,
     },
 }
 
@@ -242,7 +246,10 @@ fn main() -> Result<()> {
             marker,
             speed,
             width,
-        } => ant::App::new(size.width, size.height, *marker, *speed, *width).run(terminal),
+            n_colors,
+        } => {
+            ant::App::new(size.width, size.height, *marker, *speed, *width, *n_colors).run(terminal)
+        }
     };
     ratatui::restore();
     app_result
