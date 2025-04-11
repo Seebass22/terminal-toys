@@ -146,6 +146,10 @@ enum Commands {
         /// Amount of depth (0, 1, 2)
         #[arg(short, long, default_value_t = 1)]
         depth: u8,
+
+        /// Twisting tunnel
+        #[arg(short, long, default_value_t = false)]
+        twist: bool,
     },
     /// Langton's Ant
     Ant {
@@ -248,8 +252,17 @@ fn main() -> Result<()> {
             n_colors,
             speed,
             depth,
-        } => tunnel::App::new(size.width, size.height, *marker, *n_colors, *speed, *depth)
-            .run(terminal),
+            twist,
+        } => tunnel::App::new(
+            size.width,
+            size.height,
+            *marker,
+            *n_colors,
+            *speed,
+            *depth,
+            *twist,
+        )
+        .run(terminal),
         Commands::Ant {
             marker,
             speed,

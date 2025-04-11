@@ -24,6 +24,7 @@ pub struct App {
     n_colors: u8,
     rotation_speed: f64,
     depth: u8,
+    twist: bool,
 }
 
 impl App {
@@ -35,6 +36,7 @@ impl App {
         n_colors: u8,
         rotation_speed: f64,
         depth: u8,
+        twist: bool,
     ) -> Self {
         let mut grid = Vec::new();
 
@@ -59,6 +61,7 @@ impl App {
             n_colors,
             rotation_speed,
             depth,
+            twist,
         }
     }
 
@@ -112,13 +115,18 @@ impl App {
                 let x2 = x as f64 - mid_x as f64;
                 let y2 = y as f64 - mid_y as f64;
                 let angle = y2.atan2(x2);
-                let a = (PI + angle) * self.n_colors as f64 / (2.0 * PI);
+                let mut a = (PI + angle) * self.n_colors as f64 / (2.0 * PI);
 
                 let r = match self.depth {
                     0 => 3.0 * i + (x2.powf(2.0) + y2.powf(2.0)).sqrt(),
                     1 => 3.0 * i + 20.0 * ((x2.powf(2.0) + y2.powf(2.0)).sqrt()).log2(),
                     _ => 3.0 * i + 500.0 / (x2.powf(2.0) + y2.powf(2.0)).sqrt(),
                 };
+
+                if self.twist {
+                    let angle = angle + 0.05 * r;
+                    a = (PI + angle) * self.n_colors as f64 / (2.0 * PI);
+                }
 
                 let a2 = a + i;
                 let c = (a2 as u32 - (r * 0.10) as u32) % self.n_colors as u32;
