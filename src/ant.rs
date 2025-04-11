@@ -20,15 +20,16 @@ pub struct App {
     playground: DVec2,
     debug_text: String,
     marker: Marker,
-    is_sim_running: bool,
     pixel: bool,
     ant: (u8, usize, usize),
     speed: usize,
     n_colors: u8,
     dist_by_color: bool,
+    filled: bool,
 }
 
 impl App {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         terminal_width: u16,
         terminal_height: u16,
@@ -37,6 +38,7 @@ impl App {
         board_width: Option<usize>,
         n_colors: u8,
         dist_by_color: bool,
+        filled: bool,
     ) -> Self {
         let scale_factor = terminal_height as f32 / terminal_width as f32;
         let font_scale_factor = 2.0;
@@ -60,7 +62,7 @@ impl App {
 
         for _ in 0..board_height {
             let mut line = Vec::new();
-            line.resize(board_width, (false, 1));
+            line.resize(board_width, (false, 0));
             grid.push(line);
         }
 
@@ -70,12 +72,12 @@ impl App {
             playground: DVec2::new(width as f64, height as f64),
             marker,
             debug_text: String::new(),
-            is_sim_running: true,
             pixel,
             ant: (0, board_width / 2, board_height / 2),
             speed,
             n_colors,
             dist_by_color,
+            filled,
         }
     }
 
@@ -114,10 +116,9 @@ impl App {
     }
 
     fn reset(&mut self) {
-        self.is_sim_running = false;
         for line in self.grid.iter_mut() {
             for val in line.iter_mut() {
-                *val = (false, 1);
+                *val = (false, 0);
             }
         }
     }
@@ -151,14 +152,17 @@ impl App {
 
         if square_is_black {
             dir = (dir + 1) % 4;
-            let new_color = (current_color + 1).clamp(0, self.n_colors as u16 - 1) as u8;
+            let new_color = (current_color + 1).clamp(1, self.n_colors as u16 - 1) as u8;
             self.grid[y][x].1 = new_color;
         } else {
             dir = (dir as i32 - 1).rem_euclid(4) as u8;
+            if self.grid[y][x].1 == 0 {
+                self.grid[y][x].1 = 1;
+            }
         }
 
         let dist = if self.dist_by_color {
-            current_color as usize
+            (current_color as usize).clamp(1, 255)
         } else {
             1
         };
@@ -197,7 +201,7 @@ impl App {
                     let y = map_range(y as f64, 0.0, height as f64, 0.0, self.playground.y);
                     for (x, &(val, color)) in line.iter().enumerate() {
                         let x = map_range(x as f64, 0.0, width as f64, 0.0, self.playground.x);
-                        if val {
+                        if self.filled || val {
                             if self.pixel {
                                 ctx.draw(&Points {
                                     coords: &[(x, y)],

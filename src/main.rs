@@ -168,6 +168,10 @@ enum Commands {
         /// Step distance = color
         #[arg(short, long, default_value_t = false)]
         dist_by_color: bool,
+
+        /// Fill in path
+        #[arg(short, long, default_value_t = false)]
+        filled: bool,
     },
 }
 
@@ -252,6 +256,7 @@ fn main() -> Result<()> {
             width,
             n_colors,
             dist_by_color,
+            filled,
         } => ant::App::new(
             size.width,
             size.height,
@@ -260,6 +265,7 @@ fn main() -> Result<()> {
             *width,
             *n_colors,
             *dist_by_color,
+            *filled,
         )
         .run(terminal),
     };
