@@ -26,6 +26,8 @@ pub struct App {
     n_colors: u8,
     dist_by_color: bool,
     filled: bool,
+    pattern: usize,
+    pattern_len: usize,
 }
 
 impl App {
@@ -39,6 +41,8 @@ impl App {
         n_colors: u8,
         dist_by_color: bool,
         filled: bool,
+        pattern: usize,
+        pattern_len: usize,
     ) -> Self {
         let scale_factor = terminal_height as f32 / terminal_width as f32;
         let font_scale_factor = 2.0;
@@ -78,12 +82,15 @@ impl App {
             n_colors,
             dist_by_color,
             filled,
+            pattern,
+            pattern_len,
         }
     }
 
     pub fn run(mut self, mut terminal: DefaultTerminal) -> Result<()> {
         let tick_rate = Duration::from_millis(16);
         let mut last_tick = Instant::now();
+        self.reset();
 
         while !self.exit {
             terminal.draw(|frame| self.draw(frame))?;
@@ -116,9 +123,23 @@ impl App {
     }
 
     fn reset(&mut self) {
-        for line in self.grid.iter_mut() {
-            for val in line.iter_mut() {
+        let len = self.pattern_len;
+        let height = self.grid.len();
+        let width = self.grid[0].len();
+        for (y, line) in self.grid.iter_mut().enumerate() {
+            for (x, val) in line.iter_mut().enumerate() {
                 *val = (false, 0);
+                let conds = [
+                    false,
+                    (x * y) % len == 0,
+                    x % len == 0 || y % len == 0,
+                    x % len == 0,
+                    y % len == 0,
+                    x == 0 || x == (width - 1) || y == 0 || y == (height - 1),
+                ];
+                if conds[self.pattern] {
+                    *val = (true, 0);
+                }
             }
         }
     }
