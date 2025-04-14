@@ -2,6 +2,7 @@ use crate::utils::{is_quit_key, map_range};
 use color_eyre::Result;
 use crossterm::event::KeyEventKind;
 use glam::DVec2;
+use oorandom::Rand64;
 use ratatui::{
     crossterm::event::{self, Event, KeyCode},
     style::Color,
@@ -22,12 +23,13 @@ pub struct App {
     marker: Marker,
     pixel: bool,
     ant: (u8, usize, usize),
+    rng: Rand64,
     speed: usize,
     n_colors: u8,
     dist_by_color: bool,
     filled: bool,
-    pattern: usize,
-    pattern_len: usize,
+    pattern: Option<usize>,
+    pattern_len: Option<usize>,
 }
 
 impl App {
@@ -41,8 +43,9 @@ impl App {
         n_colors: u8,
         dist_by_color: bool,
         filled: bool,
-        pattern: usize,
-        pattern_len: usize,
+        pattern: Option<u8>,
+        pattern_len: Option<usize>,
+        seed: u128,
     ) -> Self {
         let scale_factor = terminal_height as f32 / terminal_width as f32;
         let font_scale_factor = 2.0;
@@ -78,11 +81,12 @@ impl App {
             debug_text: String::new(),
             pixel,
             ant: (0, board_width / 2, board_height / 2),
+            rng: oorandom::Rand64::new(seed),
             speed,
             n_colors,
             dist_by_color,
             filled,
-            pattern,
+            pattern: pattern.map(|n| n as usize),
             pattern_len,
         }
     }
@@ -126,9 +130,17 @@ impl App {
     }
 
     fn reset(&mut self) {
-        let len = self.pattern_len;
         let height = self.grid.len();
         let width = self.grid[0].len();
+        let pattern = match self.pattern {
+            Some(pattern) => pattern,
+            None => self.rng.rand_range(0..6) as usize,
+        };
+        let len = match self.pattern_len {
+            Some(pattern_len) => pattern_len,
+            None => self.rng.rand_range(5..48) as usize,
+        };
+
         for (y, line) in self.grid.iter_mut().enumerate() {
             for (x, val) in line.iter_mut().enumerate() {
                 *val = (false, 0);
@@ -140,7 +152,7 @@ impl App {
                     y % len == 0,
                     x == 0 || x == (width - 1) || y == 0 || y == (height - 1),
                 ];
-                if conds[self.pattern] {
+                if conds[pattern] {
                     *val = (true, 0);
                 }
             }

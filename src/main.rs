@@ -177,13 +177,17 @@ enum Commands {
         #[arg(short, long, default_value_t = false)]
         filled: bool,
 
-        /// Pattern of starting active blocks
-        #[arg(short, long, value_name = "INDEX", default_value_t = 0, value_parser = clap::value_parser!(u8).range(0..6))]
-        pattern: u8,
+        /// Pattern of starting active blocks [default: random]
+        #[arg(short, long, value_name = "INDEX", value_parser = clap::value_parser!(u8).range(0..6))]
+        pattern: Option<u8>,
 
-        /// Pattern length
-        #[arg(short = 'l', long, value_name = "N", default_value_t = 32)]
-        pattern_len: usize,
+        /// Pattern length [default: random]
+        #[arg(short = 'l', long, value_name = "N")]
+        pattern_len: Option<usize>,
+
+        /// RNG seed
+        #[arg(short, long, value_name = "SEED", default_value_t = 99)]
+        seed: u128,
     },
 }
 
@@ -280,6 +284,7 @@ fn main() -> Result<()> {
             filled,
             pattern,
             pattern_len,
+            seed,
         } => ant::App::new(
             size.width,
             size.height,
@@ -289,8 +294,9 @@ fn main() -> Result<()> {
             *n_colors,
             *dist_by_color,
             *filled,
-            *pattern as usize,
+            *pattern,
             *pattern_len,
+            *seed,
         )
         .run(terminal),
     };
