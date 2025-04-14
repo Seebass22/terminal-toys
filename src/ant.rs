@@ -111,9 +111,12 @@ impl App {
                 }
                 let board_height = self.grid.len();
                 let board_width = self.grid[0].len();
+                let total = board_height * board_width;
                 let n_touched = self.grid.iter().flatten().filter(|p| p.1 > 1).count();
-                let percentage_touched = n_touched as f32 / (board_width * board_height) as f32;
-                if percentage_touched > 0.9 {
+                let n_active = self.grid.iter().flatten().filter(|p| p.0).count();
+                let percentage_touched = n_touched as f32 / total as f32;
+                let percentage_active = n_active as f32 / total as f32;
+                if percentage_touched > 0.9 && percentage_active > 0.4 {
                     self.reset();
                 }
                 last_tick = Instant::now();
