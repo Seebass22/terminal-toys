@@ -1,5 +1,6 @@
 mod ant;
 mod balls;
+mod bubble;
 mod life;
 mod pipes3d;
 mod sand;
@@ -189,6 +190,16 @@ enum Commands {
         #[arg(short, long, value_name = "SEED", default_value_t = 99)]
         seed: u128,
     },
+    /// Bubble universe by A-na5 / ｱ_ﾅ
+    Bubble {
+        /// Marker type (Braille, Dot, Bar, Block, HalfBlock)
+        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::HalfBlock)]
+        marker: Marker,
+
+        /// Number of colors
+        #[arg(short, long, value_name = "N", default_value_t = 16, value_parser = clap::value_parser!(u8).range(2..))]
+        n_colors: u8,
+    },
 }
 
 fn main() -> Result<()> {
@@ -299,6 +310,9 @@ fn main() -> Result<()> {
             *seed,
         )
         .run(terminal),
+        Commands::Bubble { marker, n_colors } => {
+            bubble::App::new(size.width, size.height, *marker, *n_colors).run(terminal)
+        }
     };
     ratatui::restore();
     app_result
