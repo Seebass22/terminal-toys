@@ -197,7 +197,7 @@ enum Commands {
         marker: Marker,
 
         /// Number of colors
-        #[arg(short, long, value_name = "N", default_value_t = 16)]
+        #[arg(short, long, value_name = "N", default_value_t = 16, value_parser = clap::value_parser!(u8).range(2..))]
         n_colors: u8,
     },
 }
