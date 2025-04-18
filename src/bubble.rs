@@ -110,7 +110,7 @@ impl App {
 
                         let x_pos = (self.width / 2) as f64 + u * size * 0.24;
                         let y_pos = (self.height / 2) as f64 + v * size * 0.24;
-                        let c = 1 + (i % 15 + j / 36) % self.n_colors;
+                        let c = 1 + ((i % 15 + j / 36) % (self.n_colors - 1));
                         ctx.draw(&Points {
                             coords: &[(x_pos, y_pos)],
                             color: Color::Indexed(c),
