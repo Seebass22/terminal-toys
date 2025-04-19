@@ -23,10 +23,19 @@ pub struct App {
     height: usize,
     elapsed_ticks: usize,
     n_colors: u8,
+    a: u32,
+    b: u32,
 }
 
 impl App {
-    pub fn new(terminal_width: u16, terminal_height: u16, marker: Marker, n_colors: u8) -> Self {
+    pub fn new(
+        terminal_width: u16,
+        terminal_height: u16,
+        marker: Marker,
+        n_colors: u8,
+        a: u32,
+        b: u32,
+    ) -> Self {
         let (width, height) = match marker {
             Marker::Braille => (
                 (terminal_width * 2) as usize,
@@ -44,6 +53,8 @@ impl App {
             height,
             elapsed_ticks: 0,
             n_colors,
+            a,
+            b,
         }
     }
 
@@ -91,8 +102,6 @@ impl App {
         Canvas::default()
             .marker(self.marker)
             .paint(|ctx| {
-                let n = 40;
-                let m = 200;
                 let r = std::f64::consts::PI * 2.0 / 235.0;
 
                 let mut x = 0.0;
@@ -100,8 +109,8 @@ impl App {
                 let t = self.elapsed_ticks as f64 * 0.04;
                 let size = self.height.min(self.width) as f64;
 
-                for i in 0..n {
-                    for j in 0..m {
+                for i in 0..self.a {
+                    for j in 0..self.b {
                         let a = i as f64 + v;
                         let b = r * i as f64 + x;
                         let u = a.sin() + b.sin();
@@ -110,10 +119,10 @@ impl App {
 
                         let x_pos = (self.width / 2) as f64 + u * size * 0.24;
                         let y_pos = (self.height / 2) as f64 + v * size * 0.24;
-                        let c = 1 + ((i % 15 + j / 36) % (self.n_colors - 1));
+                        let c = 1 + ((i % 15 + j / 36) % (self.n_colors as u32 - 1));
                         ctx.draw(&Points {
                             coords: &[(x_pos, y_pos)],
-                            color: Color::Indexed(c),
+                            color: Color::Indexed(c as u8),
                         });
                     }
                 }

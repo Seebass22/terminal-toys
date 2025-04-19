@@ -196,6 +196,14 @@ enum Commands {
         #[arg(short, long, value_name = "TYPE", default_value_t = Marker::HalfBlock)]
         marker: Marker,
 
+        /// Parameter a
+        #[arg(short, value_name = "N", default_value_t = 30)]
+        a: u32,
+
+        /// Parameter b
+        #[arg(short, value_name = "N", default_value_t = 30)]
+        b: u32,
+
         /// Number of colors
         #[arg(short, long, value_name = "N", default_value_t = 16, value_parser = clap::value_parser!(u8).range(2..))]
         n_colors: u8,
@@ -310,9 +318,12 @@ fn main() -> Result<()> {
             *seed,
         )
         .run(terminal),
-        Commands::Bubble { marker, n_colors } => {
-            bubble::App::new(size.width, size.height, *marker, *n_colors).run(terminal)
-        }
+        Commands::Bubble {
+            marker,
+            n_colors,
+            a,
+            b,
+        } => bubble::App::new(size.width, size.height, *marker, *n_colors, *a, *b).run(terminal),
     };
     ratatui::restore();
     app_result
