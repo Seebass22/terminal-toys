@@ -1,3 +1,16 @@
+# v0.4.0
+
+## new screensaver: ant
+Langton's ant (https://en.wikipedia.org/wiki/Langton%27s_ant).
+
+The `--pattern <N>` option sets the starting pattern.
+These patterns can be modified with the `--pattern-len <N>` option.
+
+The `--filled`, `--dist-by-color` and `--n-colors` options provide more variation.
+
+## tunnel
+Added `--twist` option: makes the tunnel twist.
+
 # v0.3.0
 
 ## new screensaver: tunnel
