@@ -16,6 +16,9 @@ https://github.com/user-attachments/assets/db9570ac-ed66-4afe-8e28-af47050fa13d
 https://github.com/user-attachments/assets/c1acfead-9885-4aa2-a81d-e784d26ea62d
 ### tunnel
 https://github.com/user-attachments/assets/1d75fb73-4acd-4d47-b3a9-fc165be325e8
+### Langton's ant
+https://github.com/user-attachments/assets/f16d8e46-0572-40c6-8bba-751c0e94d353
+
 
 
 ## Installation
