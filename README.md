@@ -19,12 +19,16 @@ https://github.com/user-attachments/assets/1d75fb73-4acd-4d47-b3a9-fc165be325e8
 ### Langton's ant
 https://github.com/user-attachments/assets/f16d8e46-0572-40c6-8bba-751c0e94d353
 
-
-
 ## Installation
-Install Rust if you don't have it yet: https://rustup.rs/
+[Precompiled binaries are available for Windows, macOS and Linux.](https://github.com/Seebass22/terminal-toys/releases)
+
+Compile and install the latest release with:
 ```
 cargo install terminal-toys
+```
+Alternatively, use [`cargo binstall`](https://github.com/cargo-bins/cargo-binstall) to install the binary directly from GitHub:
+```
+cargo binstall terminal-toys
 ```
 
 ## Usage
