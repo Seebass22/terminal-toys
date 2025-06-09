@@ -23,7 +23,8 @@ pub struct App {
     height: usize,
     elapsed_ticks: usize,
     n_colors: u8,
-    particles_sqrt: u32,
+    a: u32,
+    b: u32,
 }
 
 impl App {
@@ -32,7 +33,8 @@ impl App {
         terminal_height: u16,
         marker: Marker,
         n_colors: u8,
-        particles: u32,
+        a: u32,
+        b: u32,
     ) -> Self {
         let (width, height) = match marker {
             Marker::Braille => (
@@ -51,7 +53,8 @@ impl App {
             height,
             elapsed_ticks: 0,
             n_colors,
-            particles_sqrt: particles,
+            a,
+            b,
         }
     }
 
@@ -106,8 +109,8 @@ impl App {
                 let t = self.elapsed_ticks as f64 * 0.04;
                 let size = self.height.min(self.width) as f64;
 
-                for i in 0..self.particles_sqrt {
-                    for j in 0..self.particles_sqrt {
+                for i in 0..self.a {
+                    for j in 0..self.b {
                         let a = i as f64 + v;
                         let b = r * i as f64 + x;
                         let u = a.sin() + b.sin();
