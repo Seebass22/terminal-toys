@@ -59,7 +59,7 @@ impl App {
     }
 
     pub fn run(mut self, mut terminal: DefaultTerminal) -> Result<()> {
-        let tick_rate = Duration::from_millis(32);
+        let tick_rate = Duration::from_millis(16);
         let mut last_tick = Instant::now();
 
         while !self.exit {
