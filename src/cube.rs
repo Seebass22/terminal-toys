@@ -22,17 +22,9 @@ trait ToScreenPos {
 
 impl ToScreenPos for DVec3 {
     fn to_screen_position(self, playground: Rect, val: f64) -> DVec2 {
-        // let z = self.z + 10.0;
-        // let val = 1.0;
-
-        // let z = self.z;
-        // let x = (self.x) / (val * z);
-        // let y = (self.y) / (val * z);
-
-        let fac = 0.01;
-        let z = self.z * fac;
-        let x = self.x / z;
-        let y = self.y / z;
+        let z = self.z;
+        let x = (self.x) / (val * z);
+        let y = (self.y) / (val * z);
 
         DVec2 {
             x: x + playground.right() as f64 * 0.5,
@@ -101,7 +93,7 @@ impl App {
         let mut points = Vec::new();
         for x in (-24..=24).step_by(6) {
             for y in (-24..=24).step_by(6) {
-                for z in (-24..=24).step_by(3) {
+                for z in (-24..=24).step_by(1) {
                     let x = 0.6 * x as f64;
                     let y = 0.6 * y as f64;
                     let z = 0.6 * z as f64;
@@ -176,13 +168,11 @@ impl App {
             .paint(|ctx| {
                 let t = self.tick_count as f64 * 0.1;
                 for (i, win) in self.points.windows(2).enumerate() {
-                    if i % 17 == 0 {
-                        continue;
-                    }
                     let mut line_points: [DVec2; 2] = [DVec2::ZERO; 2];
                     for (j, point) in win.iter().enumerate() {
                         let mut modified_point = rotate_x(*point, t * 0.1);
-                        modified_point = rotate_y(modified_point, t * 0.034);
+                        modified_point = rotate_y(modified_point, t * 0.033);
+                        modified_point.y += 2.0 * (modified_point.x + t).sin();
                         modified_point += 30.0 * DVec3::Z;
                         if self.orthographic {
                             line_points[j] =
@@ -195,6 +185,9 @@ impl App {
 
                     let p0 = line_points[0];
                     let p1 = line_points[1];
+                    if p0.distance(p1) > 10.0 {
+                        continue;
+                    }
                     let line = Line::new(p0.x, p0.y, p1.x, p1.y, Color::Indexed(2));
                     ctx.draw(&line);
                 }
