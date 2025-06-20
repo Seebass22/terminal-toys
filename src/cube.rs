@@ -76,6 +76,9 @@ pub struct App {
     orthographic: bool,
     val: f64,
     points: Vec<DVec3>,
+    x_rotation_speed: f64,
+    y_rotation_speed: f64,
+    z_rotation_speed: f64,
 }
 
 impl App {
@@ -84,6 +87,9 @@ impl App {
         terminal_height: u16,
         marker: Marker,
         orthographic: bool,
+        x_rotation_speed: f64,
+        y_rotation_speed: f64,
+        z_rotation_speed: f64,
     ) -> Self {
         let scale_factor = terminal_height as f32 / terminal_width as f32;
         let font_scale_factor = 2.0;
@@ -111,6 +117,9 @@ impl App {
             orthographic,
             val: 0.01,
             points,
+            x_rotation_speed,
+            y_rotation_speed,
+            z_rotation_speed,
         }
     }
 
@@ -166,15 +175,16 @@ impl App {
         Canvas::default()
             .marker(self.marker)
             .paint(|ctx| {
-                let t = self.tick_count as f64 * 0.1;
+                let t = self.tick_count as f64 * 0.01;
                 for (i, win) in self.points.windows(2).enumerate() {
                     let mut line_points: [DVec2; 2] = [DVec2::ZERO; 2];
                     for (j, point) in win.iter().enumerate() {
                         let mut point = *point;
-                        point.y += 2.0 * (point.z + 2.2 * t).sin();
+                        point.y += 2.0 * (point.z + 22.0 * t).sin();
 
-                        let mut modified_point = rotate_x(point, t * 0.1);
-                        modified_point = rotate_y(modified_point, t * 0.033);
+                        let mut modified_point = rotate_x(point, t * self.x_rotation_speed);
+                        modified_point = rotate_y(modified_point, t * self.y_rotation_speed);
+                        modified_point = rotate_z(modified_point, t * self.z_rotation_speed);
 
                         if self.orthographic {
                             line_points[j] =

@@ -215,13 +215,21 @@ enum Commands {
         #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
         marker: Marker,
 
-        /// Number of segments to generate before reset
         #[arg(short, long, value_name = "MILLISECONDS", default_value_t = 8)]
         tick_rate: u64,
 
         /// Use orthographic projection
         #[arg(short, long, default_value_t = false)]
         orthographic: bool,
+
+        #[arg(short, long, value_name = "SPEED", default_value_t = 1.0)]
+        x_rotation_speed: f64,
+
+        #[arg(short, long, value_name = "SPEED", default_value_t = 0.33333)]
+        y_rotation_speed: f64,
+
+        #[arg(short, long, value_name = "SPEED", default_value_t = 0.0)]
+        z_rotation_speed: f64,
     },
 }
 
@@ -343,8 +351,19 @@ fn main() -> Result<()> {
             marker,
             tick_rate,
             orthographic,
-        } => cube::App::new(size.width, size.height, *marker, *orthographic)
-            .run(terminal, *tick_rate),
+            x_rotation_speed,
+            y_rotation_speed,
+            z_rotation_speed,
+        } => cube::App::new(
+            size.width,
+            size.height,
+            *marker,
+            *orthographic,
+            *x_rotation_speed,
+            *y_rotation_speed,
+            *z_rotation_speed,
+        )
+        .run(terminal, *tick_rate),
     };
     ratatui::restore();
     app_result
