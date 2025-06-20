@@ -91,8 +91,8 @@ impl App {
         let height = width * scale_factor * font_scale_factor;
 
         let mut points = Vec::new();
-        for x in (-24..=24).step_by(6) {
-            for y in (-24..=24).step_by(6) {
+        for x in (-24..=24).step_by(12) {
+            for y in (-24..=24).step_by(12) {
                 for z in (-24..=24).step_by(1) {
                     let x = 0.6 * x as f64;
                     let y = 0.6 * y as f64;
@@ -170,9 +170,12 @@ impl App {
                 for (i, win) in self.points.windows(2).enumerate() {
                     let mut line_points: [DVec2; 2] = [DVec2::ZERO; 2];
                     for (j, point) in win.iter().enumerate() {
-                        let mut modified_point = rotate_x(*point, t * 0.1);
+                        let mut point = *point;
+                        point.y += 2.0 * (point.z + 2.2 * t).sin();
+
+                        let mut modified_point = rotate_x(point, t * 0.1);
                         modified_point = rotate_y(modified_point, t * 0.033);
-                        modified_point.y += 2.0 * (modified_point.x + t).sin();
+
                         modified_point += 30.0 * DVec3::Z;
                         if self.orthographic {
                             line_points[j] =
@@ -185,10 +188,11 @@ impl App {
 
                     let p0 = line_points[0];
                     let p1 = line_points[1];
-                    if p0.distance(p1) > 10.0 {
+                    if p0.distance(p1) > 20.0 {
                         continue;
                     }
-                    let line = Line::new(p0.x, p0.y, p1.x, p1.y, Color::Indexed(2));
+                    let c = i as f64 * 0.01;
+                    let line = Line::new(p0.x, p0.y, p1.x, p1.y, Color::Indexed(c as u8));
                     ctx.draw(&line);
                 }
             })
