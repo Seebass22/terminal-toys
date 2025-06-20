@@ -33,8 +33,8 @@ impl ToScreenPos for DVec3 {
     }
 
     fn to_screen_position_orthographic(self, playground: Rect) -> DVec2 {
-        let x = 20.0 * self.x + 0.4 * self.z * 20.0;
-        let y = 20.0 * self.y + 0.4 * self.z * 20.0;
+        let x = 2.0 * self.x + 0.4 * self.z * 3.0;
+        let y = 3.0 * self.y + 0.4 * self.z * 3.0;
 
         DVec2 {
             x: x + playground.right() as f64 * 0.5,
@@ -176,11 +176,11 @@ impl App {
                         let mut modified_point = rotate_x(point, t * 0.1);
                         modified_point = rotate_y(modified_point, t * 0.033);
 
-                        modified_point += 30.0 * DVec3::Z;
                         if self.orthographic {
                             line_points[j] =
                                 modified_point.to_screen_position_orthographic(self.playground);
                         } else {
+                            modified_point += 30.0 * DVec3::Z;
                             line_points[j] =
                                 modified_point.to_screen_position(self.playground, self.val);
                         }
