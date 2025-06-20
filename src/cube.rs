@@ -202,7 +202,7 @@ impl App {
                         continue;
                     }
                     let c = i as f64 * 0.01;
-                    let line = Line::new(p0.x, p0.y, p1.x, p1.y, Color::Indexed(c as u8));
+                    let line = Line::new(p0.x, p0.y, p1.x, p1.y, Color::Indexed(c as u8 + 1));
                     ctx.draw(&line);
                 }
             })
