@@ -1,3 +1,11 @@
+# v0.5.0
+
+## new screensaver: bubble
+Bubble universe is a screensaver that originally comes from [this 2020 tweet by A-na5](https://twitter.com/yuruyurau/status/1226846058728177665).
+The code is adapted from [this TIC-80 code by jtruk](https://tcc.lovebyte.party/day8extra/#tic-80).
+
+Try setting different values for the `-a` and `-b` parameters.
+
 # v0.4.0
 
 ## new screensaver: ant
