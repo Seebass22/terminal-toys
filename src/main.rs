@@ -1,6 +1,7 @@
 mod ant;
 mod balls;
 mod bubble;
+mod cube;
 mod life;
 mod pipes3d;
 mod sand;
@@ -208,6 +209,28 @@ enum Commands {
         #[arg(short, long, value_name = "N", default_value_t = 16, value_parser = clap::value_parser!(u8).range(2..))]
         n_colors: u8,
     },
+    /// Rotating cube
+    Cube {
+        /// Marker type (Braille, Dot, Bar, Block, HalfBlock)
+        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
+        marker: Marker,
+
+        #[arg(short, long, value_name = "MILLISECONDS", default_value_t = 8)]
+        tick_rate: u64,
+
+        /// Use orthographic projection
+        #[arg(short, long, default_value_t = false)]
+        orthographic: bool,
+
+        #[arg(short, long, value_name = "SPEED", default_value_t = 1.0)]
+        x_rotation_speed: f64,
+
+        #[arg(short, long, value_name = "SPEED", default_value_t = 0.5)]
+        y_rotation_speed: f64,
+
+        #[arg(short, long, value_name = "SPEED", default_value_t = 0.25)]
+        z_rotation_speed: f64,
+    },
 }
 
 fn main() -> Result<()> {
@@ -324,6 +347,23 @@ fn main() -> Result<()> {
             a,
             b,
         } => bubble::App::new(size.width, size.height, *marker, *n_colors, *a, *b).run(terminal),
+        Commands::Cube {
+            marker,
+            tick_rate,
+            orthographic,
+            x_rotation_speed,
+            y_rotation_speed,
+            z_rotation_speed,
+        } => cube::App::new(
+            size.width,
+            size.height,
+            *marker,
+            *orthographic,
+            *x_rotation_speed,
+            *y_rotation_speed,
+            *z_rotation_speed,
+        )
+        .run(terminal, *tick_rate),
     };
     ratatui::restore();
     app_result
