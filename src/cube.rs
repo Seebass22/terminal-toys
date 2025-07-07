@@ -33,7 +33,7 @@ impl ToScreenPos for DVec3 {
     }
 
     fn to_screen_position_orthographic(self, playground: Rect) -> DVec2 {
-        let x = 2.0 * self.x + 0.4 * self.z * 3.0;
+        let x = 3.0 * self.x + 0.4 * self.z * 3.0;
         let y = 3.0 * self.y + 0.4 * self.z * 3.0;
 
         DVec2 {
@@ -198,7 +198,10 @@ impl App {
 
                     let p0 = line_points[0];
                     let p1 = line_points[1];
-                    if p0.distance(p1) > 20.0 {
+                    let original_p0 = win[0];
+                    let original_p1 = win[1];
+
+                    if original_p0.distance(original_p1) > 2.0 {
                         continue;
                     }
                     let c = i as f64 * 0.01;
