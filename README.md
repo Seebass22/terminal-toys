@@ -18,6 +18,9 @@ https://github.com/user-attachments/assets/c1acfead-9885-4aa2-a81d-e784d26ea62d
 https://github.com/user-attachments/assets/1d75fb73-4acd-4d47-b3a9-fc165be325e8
 ### Langton's ant
 https://github.com/user-attachments/assets/f16d8e46-0572-40c6-8bba-751c0e94d353
+### Bubble universe
+https://github.com/user-attachments/assets/8f190667-1f1c-4170-867f-88af9caaf027
+
 
 ## Installation
 [Precompiled binaries are available for Windows, macOS and Linux.](https://github.com/Seebass22/terminal-toys/releases)
