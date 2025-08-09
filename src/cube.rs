@@ -183,9 +183,10 @@ impl App {
             .marker(self.marker)
             .paint(|ctx| {
                 let t = self.tick_count as f64 * 0.01;
-                for (i, win) in self.points.windows(2).enumerate() {
+                let mut c: u16 = 0;
+                for win in self.points.windows(2) {
                     let mut line_points: [DVec2; 2] = [DVec2::ZERO; 2];
-                    for (j, point) in win.iter().enumerate() {
+                    for (i, point) in win.iter().enumerate() {
                         let mut point = *point;
                         point.y += self.amplitude * (point.z + self.frequency * t).sin();
 
@@ -194,11 +195,11 @@ impl App {
                         modified_point = rotate_z(modified_point, t * self.z_rotation_speed);
 
                         if self.orthographic {
-                            line_points[j] =
+                            line_points[i] =
                                 modified_point.to_screen_position_orthographic(self.playground);
                         } else {
                             modified_point += 30.0 * DVec3::Z;
-                            line_points[j] =
+                            line_points[i] =
                                 modified_point.to_screen_position(self.playground, self.val);
                         }
                     }
@@ -209,10 +210,11 @@ impl App {
                     let original_p1 = win[1];
 
                     if original_p0.distance(original_p1) > 2.0 {
+                        c += 1;
                         continue;
                     }
-                    let c = i as f64 * 0.01;
-                    let line = Line::new(p0.x, p0.y, p1.x, p1.y, Color::Indexed(c as u8 + 1));
+                    let color = c.rem_euclid(16) as u8 + 1;
+                    let line = Line::new(p0.x, p0.y, p1.x, p1.y, Color::Indexed(color));
                     ctx.draw(&line);
                 }
             })
