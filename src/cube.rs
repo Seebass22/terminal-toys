@@ -213,7 +213,11 @@ impl App {
                         c += 1;
                         continue;
                     }
-                    let color = c.rem_euclid(16) as u8 + 1;
+                    let mut color = c.rem_euclid(16) as u8 + 1;
+                    if true {
+                        color += ((t * 18.0) as u64).rem_euclid(256) as u8;
+                        color = ((color as u16).rem_euclid(256 - 16) + 16) as u8;
+                    }
                     let line = Line::new(p0.x, p0.y, p1.x, p1.y, Color::Indexed(color));
                     ctx.draw(&line);
                 }
