@@ -81,6 +81,7 @@ pub struct App {
     z_rotation_speed: f64,
     amplitude: f64,
     frequency: f64,
+    color_speed: Option<f64>,
 }
 
 impl App {
@@ -95,6 +96,7 @@ impl App {
         z_rotation_speed: f64,
         amplitude: f64,
         frequency: f64,
+        color_speed: Option<f64>,
     ) -> Self {
         let scale_factor = terminal_height as f32 / terminal_width as f32;
         let font_scale_factor = 2.0;
@@ -127,6 +129,7 @@ impl App {
             z_rotation_speed,
             amplitude,
             frequency,
+            color_speed,
         }
     }
 
@@ -214,8 +217,8 @@ impl App {
                         continue;
                     }
                     let mut color = c.rem_euclid(16) as u8 + 1;
-                    if true {
-                        color += ((t * 18.0) as u64).rem_euclid(256) as u8;
+                    if let Some(color_speed) = self.color_speed {
+                        color += ((t * 18.0 * color_speed) as u64).rem_euclid(256) as u8;
                         color = ((color as u16).rem_euclid(256 - 16) + 16) as u8;
                     }
                     let line = Line::new(p0.x, p0.y, p1.x, p1.y, Color::Indexed(color));
