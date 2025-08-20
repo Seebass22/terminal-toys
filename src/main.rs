@@ -209,7 +209,7 @@ enum Commands {
         #[arg(short, long, value_name = "N", default_value_t = 16, value_parser = clap::value_parser!(u8).range(2..))]
         n_colors: u8,
     },
-    /// Rotating cube
+    /// Rotating sine wave cube
     Cube {
         /// Marker type (Braille, Dot, Bar, Block, HalfBlock)
         #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
@@ -230,6 +230,14 @@ enum Commands {
 
         #[arg(short, long, value_name = "SPEED", default_value_t = 0.25)]
         z_rotation_speed: f64,
+
+        /// Amplitude of sine waves
+        #[arg(short, long, value_name = "AMPLITUDE", default_value_t = 1.2)]
+        amplitude: f64,
+
+        /// Frequency of sine waves
+        #[arg(short, long, value_name = "FREQUENCY", default_value_t = 20.0)]
+        frequency: f64,
     },
 }
 
@@ -354,6 +362,8 @@ fn main() -> Result<()> {
             x_rotation_speed,
             y_rotation_speed,
             z_rotation_speed,
+            amplitude,
+            frequency,
         } => cube::App::new(
             size.width,
             size.height,
@@ -362,6 +372,8 @@ fn main() -> Result<()> {
             *x_rotation_speed,
             *y_rotation_speed,
             *z_rotation_speed,
+            *amplitude,
+            *frequency,
         )
         .run(terminal, *tick_rate),
     };

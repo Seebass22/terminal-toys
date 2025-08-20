@@ -79,9 +79,12 @@ pub struct App {
     x_rotation_speed: f64,
     y_rotation_speed: f64,
     z_rotation_speed: f64,
+    amplitude: f64,
+    frequency: f64,
 }
 
 impl App {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         terminal_width: u16,
         terminal_height: u16,
@@ -90,6 +93,8 @@ impl App {
         x_rotation_speed: f64,
         y_rotation_speed: f64,
         z_rotation_speed: f64,
+        amplitude: f64,
+        frequency: f64,
     ) -> Self {
         let scale_factor = terminal_height as f32 / terminal_width as f32;
         let font_scale_factor = 2.0;
@@ -120,6 +125,8 @@ impl App {
             x_rotation_speed,
             y_rotation_speed,
             z_rotation_speed,
+            amplitude,
+            frequency,
         }
     }
 
@@ -181,7 +188,7 @@ impl App {
                     let mut line_points: [DVec2; 2] = [DVec2::ZERO; 2];
                     for (i, point) in win.iter().enumerate() {
                         let mut point = *point;
-                        point.y += 2.0 * (point.z + 22.0 * t).sin();
+                        point.y += self.amplitude * (point.z + self.frequency * t).sin();
 
                         let mut modified_point = rotate_x(point, t * self.x_rotation_speed);
                         modified_point = rotate_y(modified_point, t * self.y_rotation_speed);
