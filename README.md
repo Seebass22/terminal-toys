@@ -20,7 +20,8 @@ https://github.com/user-attachments/assets/1d75fb73-4acd-4d47-b3a9-fc165be325e8
 https://github.com/user-attachments/assets/f16d8e46-0572-40c6-8bba-751c0e94d353
 ### Bubble universe
 https://github.com/user-attachments/assets/8f190667-1f1c-4170-867f-88af9caaf027
-
+### Sine cube
+https://github.com/user-attachments/assets/5d5136df-b5b6-4a21-9423-91915c604aac
 
 ## Installation
 [Precompiled binaries are available for Windows, macOS and Linux.](https://github.com/Seebass22/terminal-toys/releases)
