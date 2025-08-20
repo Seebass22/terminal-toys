@@ -236,8 +236,12 @@ enum Commands {
         amplitude: f64,
 
         /// Frequency of sine waves
-        #[arg(short, long, value_name = "FREQUENCY", default_value_t = 20.0)]
+        #[arg(short, long, value_name = "FREQUENCY", default_value_t = 1.0)]
         frequency: f64,
+
+        /// Speed of sine wave phase shift
+        #[arg(short, long, value_name = "SPEED", default_value_t = 1.0)]
+        speed: f64,
 
         /// Color change speed
         #[arg(short, long, value_name = "SPEED")]
@@ -368,6 +372,7 @@ fn main() -> Result<()> {
             z_rotation_speed,
             amplitude,
             frequency,
+            speed,
             color_speed,
         } => cube::App::new(
             size.width,
@@ -379,6 +384,7 @@ fn main() -> Result<()> {
             *z_rotation_speed,
             *amplitude,
             *frequency,
+            *speed,
             *color_speed,
         )
         .run(terminal, *tick_rate),

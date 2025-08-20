@@ -81,6 +81,7 @@ pub struct App {
     z_rotation_speed: f64,
     amplitude: f64,
     frequency: f64,
+    speed: f64,
     color_speed: Option<f64>,
 }
 
@@ -96,6 +97,7 @@ impl App {
         z_rotation_speed: f64,
         amplitude: f64,
         frequency: f64,
+        speed: f64,
         color_speed: Option<f64>,
     ) -> Self {
         let scale_factor = terminal_height as f32 / terminal_width as f32;
@@ -129,6 +131,7 @@ impl App {
             z_rotation_speed,
             amplitude,
             frequency,
+            speed,
             color_speed,
         }
     }
@@ -191,7 +194,8 @@ impl App {
                     let mut line_points: [DVec2; 2] = [DVec2::ZERO; 2];
                     for (i, point) in win.iter().enumerate() {
                         let mut point = *point;
-                        point.y += self.amplitude * (point.z + self.frequency * t).sin();
+                        point.y += self.amplitude
+                            * (self.frequency * point.z + 20.0 * self.speed * t).sin();
 
                         let mut modified_point = rotate_x(point, t * self.x_rotation_speed);
                         modified_point = rotate_y(modified_point, t * self.y_rotation_speed);
