@@ -1,6 +1,6 @@
 [package]
 name = "terminal-toys"
-version = "0.5.0"
+version = "0.6.0"
 authors = ["Sebastian Thuemmel <sebastianthuemmel@yahoo.ca>"]
 license = "MIT"
 edition = "2021"

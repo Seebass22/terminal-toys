@@ -1,3 +1,12 @@
+# v0.6.0
+
+## new screensaver: cube
+A 3d rotating cube made out of sine waves.
+
+Options change the x, y and z rotation speed, amplitude, frequency and speed of the sine waves.
+
+Use the `--color-speed <SPEED>` option to make the colors shift over time.
+
 # v0.5.0
 
 ## new screensaver: bubble
