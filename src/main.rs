@@ -4,6 +4,7 @@ mod bubble;
 mod cube;
 mod life;
 mod pipes3d;
+mod rings;
 mod sand;
 mod splits;
 mod tunnel;
@@ -247,6 +248,49 @@ enum Commands {
         #[arg(short, long, value_name = "SPEED")]
         color_speed: Option<f64>,
     },
+    /// Sphere made out of shifting rings
+    Rings {
+        /// Marker type (Braille, Dot, Bar, Block, HalfBlock)
+        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
+        marker: Marker,
+
+        #[arg(short, long, value_name = "MILLISECONDS", default_value_t = 8)]
+        tick_rate: u64,
+
+        /// Use orthographic projection
+        #[arg(short, long, default_value_t = false)]
+        orthographic: bool,
+
+        #[arg(short, long, value_name = "SPEED", default_value_t = 0.5)]
+        x_rotation_speed: f64,
+
+        #[arg(short, long, value_name = "SPEED", default_value_t = 0.25)]
+        y_rotation_speed: f64,
+
+        #[arg(short, long, value_name = "SPEED", default_value_t = 0.125)]
+        z_rotation_speed: f64,
+
+        /// Amplitude of sine waves
+        #[arg(short, long, value_name = "AMPLITUDE", default_value_t = 5.0)]
+        amplitude: f64,
+
+        /// Frequency of sine waves
+        #[arg(short, long, value_name = "FREQUENCY", default_value_t = 10.0)]
+        frequency: f64,
+
+        /// Speed of sine wave phase shift
+        #[arg(short, long, value_name = "SPEED", default_value_t = 0.1)]
+        speed: f64,
+
+        /// Zoom
+        #[arg(
+            long,
+            value_name = "ZOOM",
+            default_value_t = 0.0,
+            allow_negative_numbers = true
+        )]
+        zoom: f64,
+    },
 }
 
 fn main() -> Result<()> {
@@ -386,6 +430,31 @@ fn main() -> Result<()> {
             *frequency,
             *speed,
             *color_speed,
+        )
+        .run(terminal, *tick_rate),
+        Commands::Rings {
+            marker,
+            tick_rate,
+            orthographic,
+            x_rotation_speed,
+            y_rotation_speed,
+            z_rotation_speed,
+            amplitude,
+            frequency,
+            speed,
+            zoom,
+        } => rings::App::new(
+            size.width,
+            size.height,
+            *marker,
+            *orthographic,
+            *x_rotation_speed,
+            *y_rotation_speed,
+            *z_rotation_speed,
+            *amplitude,
+            *frequency,
+            *speed,
+            *zoom,
         )
         .run(terminal, *tick_rate),
     };
