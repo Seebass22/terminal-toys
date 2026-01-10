@@ -117,7 +117,7 @@ impl App {
                         break;
                     }
 
-                    if i % 2 == 0 {
+                    if i.is_multiple_of(2) {
                         let width = self.grid[0].len() as u64;
                         let mut found = false;
                         'reset_spawn: for _ in 0..3 {
@@ -141,7 +141,7 @@ impl App {
                         }
                     }
                     if let Some(n) = self.flip_after {
-                        if i % n == 0 {
+                        if i.is_multiple_of(n) {
                             self.flip();
                         }
                     }

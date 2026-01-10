@@ -85,7 +85,7 @@ impl App {
             if last_tick.elapsed() >= tick_rate {
                 self.on_tick();
                 last_tick = Instant::now();
-                if self.tick_count % 20 == 0 && self.ball_count < self.max_balls {
+                if self.tick_count.is_multiple_of(20) && self.ball_count < self.max_balls {
                     let x = 1.0 + 3.0 * rng.rand_float();
                     let y = 1.0 + 3.0 * rng.rand_float();
                     self.ball_count += 1;
@@ -124,7 +124,7 @@ impl App {
             ball.circle.y += ball.vy;
             ball.vy -= 0.2;
             ball.vy *= 0.99;
-            if self.tick_count % 100 == 0 {
+            if self.tick_count.is_multiple_of(100) {
                 ball.vy *= 2.0;
             }
         }

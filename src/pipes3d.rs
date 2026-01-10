@@ -137,7 +137,9 @@ impl App {
                 self.camera_position += direction * follow_speed;
                 self.on_tick();
                 last_tick = Instant::now();
-                if self.tick_count % 2 == 0 && (self.points.len() as u32) < self.max_segments {
+                if self.tick_count.is_multiple_of(2)
+                    && (self.points.len() as u32) < self.max_segments
+                {
                     self.points.push(current_point);
                     let unit_vectors = [
                         DVec3::new(1.0, 0.0, 0.0),
