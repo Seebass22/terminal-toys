@@ -26,7 +26,7 @@ struct Cli {
 enum Commands {
     /// Bouncy balls!
     Balls {
-        /// Marker type (Braille, Dot, Bar, Block, HalfBlock)
+        /// Marker type (Braille, Dot, Bar, Block, HalfBlock, Quadrant, Sextant, Octant)
         #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
         marker: Marker,
 
@@ -36,7 +36,7 @@ enum Commands {
     },
     /// 3d pipe screensaver
     Pipes3d {
-        /// Marker type (Braille, Dot, Bar, Block, HalfBlock)
+        /// Marker type (Braille, Dot, Bar, Block, HalfBlock, Quadrant, Sextant, Octant)
         #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
         marker: Marker,
 
@@ -65,7 +65,7 @@ enum Commands {
     },
     /// Lines that split after a while
     Splits {
-        /// Marker type (Braille, Dot, Bar, Block, HalfBlock)
+        /// Marker type (Braille, Dot, Bar, Block, HalfBlock, Quadrant, Sextant, Octant)
         #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
         marker: Marker,
 
@@ -82,7 +82,7 @@ enum Commands {
     },
     /// Game of life
     Life {
-        /// Marker type (Braille, Dot, Bar, Block, HalfBlock)
+        /// Marker type (Braille, Dot, Bar, Block, HalfBlock, Quadrant, Sextant, Octant)
         #[arg(short, long, value_name = "TYPE", default_value_t = Marker::HalfBlock)]
         marker: Marker,
 
@@ -100,7 +100,7 @@ enum Commands {
     },
     /// Falling sand
     Sand {
-        /// Marker type (Braille, Dot, Bar, Block, HalfBlock)
+        /// Marker type (Braille, Dot, Bar, Block, HalfBlock, Quadrant, Sextant, Octant)
         #[arg(short, long, value_name = "TYPE", default_value_t = Marker::HalfBlock)]
         marker: Marker,
 
@@ -134,7 +134,7 @@ enum Commands {
     },
     /// Rotating tunnel
     Tunnel {
-        /// Marker type (Braille, Dot, Bar, Block, HalfBlock)
+        /// Marker type (Braille, Dot, Bar, Block, HalfBlock, Quadrant, Sextant, Octant)
         #[arg(short, long, value_name = "TYPE", default_value_t = Marker::HalfBlock)]
         marker: Marker,
 
@@ -156,7 +156,7 @@ enum Commands {
     },
     /// Langton's Ant
     Ant {
-        /// Marker type (Braille, Dot, Bar, Block, HalfBlock)
+        /// Marker type (Braille, Dot, Bar, Block, HalfBlock, Quadrant, Sextant, Octant)
         #[arg(short, long, value_name = "TYPE", default_value_t = Marker::HalfBlock)]
         marker: Marker,
 
@@ -194,7 +194,7 @@ enum Commands {
     },
     /// Bubble universe by A-na5 / ｱ_ﾅ
     Bubble {
-        /// Marker type (Braille, Dot, Bar, Block, HalfBlock)
+        /// Marker type (Braille, Dot, Bar, Block, HalfBlock, Quadrant, Sextant, Octant)
         #[arg(short, long, value_name = "TYPE", default_value_t = Marker::HalfBlock)]
         marker: Marker,
 
@@ -212,7 +212,7 @@ enum Commands {
     },
     /// Rotating sine wave cube
     Cube {
-        /// Marker type (Braille, Dot, Bar, Block, HalfBlock)
+        /// Marker type (Braille, Dot, Bar, Block, HalfBlock, Quadrant, Sextant, Octant)
         #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
         marker: Marker,
 
@@ -248,9 +248,9 @@ enum Commands {
         #[arg(short, long, value_name = "SPEED")]
         color_speed: Option<f64>,
     },
-    /// Sphere made out of shifting rings
+    /// Sphere made out of shifting discs
     Rings {
-        /// Marker type (Braille, Dot, Bar, Block, HalfBlock)
+        /// Marker type (Braille, Dot, Bar, Block, HalfBlock, Quadrant, Sextant, Octant)
         #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
         marker: Marker,
 

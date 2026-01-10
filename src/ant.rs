@@ -1,4 +1,4 @@
-use crate::utils::{is_quit_key, map_range};
+use crate::utils::{calc_board_size_stretched, is_quit_key, map_range};
 use color_eyre::Result;
 use crossterm::event::KeyEventKind;
 use glam::DVec2;
@@ -57,14 +57,7 @@ impl App {
 
         let (board_width, board_height) = match board_width {
             Some(width) => (width, (width as f32 * wh_factor) as usize),
-            None => match marker {
-                Marker::HalfBlock => (terminal_width as usize, (terminal_height * 2) as usize),
-                Marker::Braille => (
-                    (terminal_width * 2) as usize,
-                    (terminal_height * 4) as usize,
-                ),
-                _ => (terminal_width as usize, terminal_height as usize),
-            },
+            None => calc_board_size_stretched(marker, terminal_width, terminal_height),
         };
 
         for _ in 0..board_height {

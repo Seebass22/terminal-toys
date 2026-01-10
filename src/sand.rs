@@ -1,4 +1,4 @@
-use crate::utils::{calculate_hash, is_quit_key, map_range};
+use crate::utils::{calc_board_size_scaled, calculate_hash, is_quit_key, map_range};
 use color_eyre::Result;
 use crossterm::event::KeyEventKind;
 use glam::DVec2;
@@ -53,13 +53,8 @@ impl App {
         let rng = oorandom::Rand64::new(seed);
         let mut grid = Vec::new();
 
-        let (board_width, board_height) = match marker {
-            Marker::Braille => (
-                (terminal_width * 2) as usize,
-                (terminal_height * 4) as usize,
-            ),
-            _ => (terminal_width as usize, (terminal_height * 2) as usize),
-        };
+        let (board_width, board_height) =
+            calc_board_size_scaled(marker, terminal_width, terminal_height);
 
         for _ in 0..board_height {
             let mut line = Vec::new();

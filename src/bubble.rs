@@ -1,4 +1,4 @@
-use crate::utils::is_quit_key;
+use crate::utils::{calc_board_size_scaled, is_quit_key};
 use color_eyre::Result;
 use crossterm::event::KeyEventKind;
 use glam::DVec2;
@@ -36,13 +36,7 @@ impl App {
         a: u32,
         b: u32,
     ) -> Self {
-        let (width, height) = match marker {
-            Marker::Braille => (
-                (terminal_width * 2) as usize,
-                (terminal_height * 4) as usize,
-            ),
-            _ => (terminal_width as usize, (terminal_height * 2) as usize),
-        };
+        let (width, height) = calc_board_size_scaled(marker, terminal_width, terminal_height);
 
         Self {
             exit: false,

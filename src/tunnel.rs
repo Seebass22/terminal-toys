@@ -1,4 +1,4 @@
-use crate::utils::is_quit_key;
+use crate::utils::{calc_board_size_scaled, is_quit_key};
 use color_eyre::Result;
 use crossterm::event::KeyEventKind;
 use glam::DVec2;
@@ -40,13 +40,8 @@ impl App {
     ) -> Self {
         let mut grid = Vec::new();
 
-        let (board_width, board_height) = match marker {
-            Marker::Braille => (
-                (terminal_width * 2) as usize,
-                (terminal_height * 4) as usize,
-            ),
-            _ => (terminal_width as usize, (terminal_height * 2) as usize),
-        };
+        let (board_width, board_height) =
+            calc_board_size_scaled(marker, terminal_width, terminal_height);
 
         for _ in 0..board_height {
             grid.push(vec![0; board_width]);
