@@ -1,3 +1,10 @@
+# v0.7.0
+## new screensaver: rings
+A 3d rotating sphere made out of shifting rings
+
+## other changes
+- new marker types for all screensavers (Quadrant, Sextant, Octant) 
+
 # v0.6.0
 
 ## new screensaver: cube
@@ -46,7 +53,7 @@ The default is 1 as it works better on smaller terminals than 2.
 The number of colors and segments can be set with the `-n <N>` option and speed with `-x <SPEED>`.
 
 ## sand
-* Changed scaling for `Block`, `Bar` or `Dot` characters so each character represents 2 pixels
+- Changed scaling for `Block`, `Bar` or `Dot` characters so each character represents 2 pixels
 
 # v0.2.0
 
