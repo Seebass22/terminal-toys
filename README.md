@@ -3,6 +3,11 @@ A collection of terminal screensavers
 
 ![screenshot](https://github.com/user-attachments/assets/61bcb66a-4963-4dc5-8b90-c21736f5cce2)
 
+## Quick links
+* [Installation](#Installation)
+* [Usage](#Usage)
+* [Videos](#Screensavers)
+  
 ## Screensavers
 ### 3d pipes
 https://github.com/user-attachments/assets/e2425ca8-b1fd-46b0-895c-74e3edbf159c
