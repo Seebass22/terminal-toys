@@ -248,7 +248,7 @@ enum Commands {
         #[arg(short, long, value_name = "SPEED")]
         color_speed: Option<f64>,
     },
-    /// Sphere made out of shifting discs
+    /// Sphere made out of shifting rings
     Rings {
         /// Marker type (Braille, Dot, Bar, Block, HalfBlock, Quadrant, Sextant, Octant)
         #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
