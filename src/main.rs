@@ -6,6 +6,7 @@ mod life;
 mod pipes3d;
 mod rings;
 mod sand;
+mod sparks;
 mod splits;
 mod tunnel;
 mod utils;
@@ -295,6 +296,36 @@ enum Commands {
         )]
         zoom: f64,
     },
+    /// Explosions!
+    Sparks {
+        /// Marker type (Braille, Dot, Bar, Block, HalfBlock, Quadrant, Sextant, Octant)
+        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
+        marker: Marker,
+
+        /// Number of sparks per explosion
+        #[arg(short = 'n', long, value_name = "SPARKS", default_value_t = 360)]
+        n_sparks: usize,
+
+        /// RNG seed
+        #[arg(short, long, value_name = "SEED", default_value_t = 99)]
+        seed: u128,
+
+        /// Spark lifetime in ticks
+        #[arg(short, long, value_name = "TICKS", default_value_t = 100)]
+        lifetime: u64,
+
+        /// Number of ticks to wait between spawning explosions
+        #[arg(short, long, value_name = "TICKS", default_value_t = 100)]
+        rate: u64,
+
+        /// Explosion power
+        #[arg(short, long, value_name = "POWER", default_value_t = 10.0)]
+        power: f64,
+
+        /// Random offset added to particle velocity
+        #[arg(short, long, value_name = "POWER", default_value_t = 3.0)]
+        velocity_offset: f64,
+    },
 }
 
 fn main() -> Result<()> {
@@ -463,6 +494,26 @@ fn main() -> Result<()> {
             *zoom,
         )
         .run(terminal, *tick_rate),
+        Commands::Sparks {
+            marker,
+            n_sparks,
+            seed,
+            lifetime,
+            rate,
+            power,
+            velocity_offset,
+        } => sparks::App::new(
+            size.width,
+            size.height,
+            *marker,
+            *n_sparks,
+            *seed,
+            *lifetime,
+            *rate,
+            *power,
+            *velocity_offset,
+        )
+        .run(terminal),
     };
     ratatui::restore();
     app_result
