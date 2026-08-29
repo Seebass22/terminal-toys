@@ -1,3 +1,20 @@
+# v0.8.0
+## new screensaver: sparks
+Sparks that bounce off the sides of the terminal
+
+options:
+```
+  -n, --n-sparks <SPARKS>        Number of sparks per explosion
+  -l, --lifetime <TICKS>         Spark lifetime
+  -r, --rate <TICKS>             Time between explosions
+  -p, --power <POWER>            Explosion power
+  -v, --velocity-offset <POWER>  Random offset added to particle velocity
+```
+
+## sand
+- add obstacle color option: `-c <INDEX`
+- set default obstacle color to terminal color 7
+
 # v0.7.0
 ## new screensaver: rings
 A 3d rotating sphere made out of shifting rings
