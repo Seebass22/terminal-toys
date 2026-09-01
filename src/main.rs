@@ -128,9 +128,13 @@ enum Commands {
         #[arg(short, long, value_name = "N")]
         flip_after: Option<u32>,
 
-        /// reset after sand emptied N times
+        /// Reset after sand emptied N times
         #[arg(short, long, value_name = "N", default_value_t = 3)]
         reset: usize,
+
+        /// Obstacle color index
+        #[arg(short = 'c', long, value_name = "INDEX", default_value_t = 7)]
+        obstacle_color: u8,
     },
     /// Rotating tunnel
     Tunnel {
@@ -348,6 +352,7 @@ fn main() -> Result<()> {
             particles,
             flip_after,
             reset,
+            obstacle_color,
         } => sand::App::new(
             size.width,
             size.height,
@@ -359,6 +364,7 @@ fn main() -> Result<()> {
             *particles,
             *flip_after,
             *reset,
+            *obstacle_color,
         )
         .run(terminal),
         Commands::Tunnel {
