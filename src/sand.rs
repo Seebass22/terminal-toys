@@ -34,6 +34,7 @@ pub struct App {
     hash_history: Vec<u64>,
     empties_until_reset: usize,
     empties: usize,
+    obstacle_color: u8,
 }
 
 impl App {
@@ -49,6 +50,7 @@ impl App {
         particles: u64,
         flip_after: Option<u32>,
         empties_until_reset: usize,
+        obstacle_color: u8,
     ) -> Self {
         let rng = oorandom::Rand64::new(seed);
         let mut grid = Vec::new();
@@ -82,6 +84,7 @@ impl App {
             hash_history: Vec::new(),
             empties_until_reset,
             empties: 0,
+            obstacle_color,
         }
     }
 
@@ -225,7 +228,7 @@ impl App {
                 if let Some(1) = self.grid[y][x] {
                     break;
                 }
-                self.grid[y][x] = Some(1);
+                self.grid[y][x] = Some(self.obstacle_color);
             }
         }
     }
@@ -235,7 +238,11 @@ impl App {
     }
 
     fn random_color(&mut self) -> u8 {
-        self.rng.rand_range(2..8) as u8
+        let mut color = self.obstacle_color;
+        while color == self.obstacle_color {
+            color = self.rng.rand_range(1..8) as u8;
+        }
+        color
     }
 
     fn handle_key_press(&mut self, key: event::KeyEvent) {
@@ -267,7 +274,7 @@ impl App {
         for y in (0..(height - 1)).rev() {
             for x in 0..width {
                 if self.grid[y][x].is_some() {
-                    if self.grid[y][x].unwrap() == 1 {
+                    if self.grid[y][x].unwrap() == self.obstacle_color {
                         continue;
                     }
 
