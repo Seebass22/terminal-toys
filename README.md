@@ -29,6 +29,8 @@ https://github.com/user-attachments/assets/8f190667-1f1c-4170-867f-88af9caaf027
 https://github.com/user-attachments/assets/5d5136df-b5b6-4a21-9423-91915c604aac
 ### Rings
 https://github.com/user-attachments/assets/4be83bac-d24e-43fc-aa03-f289bdc84476
+### Sparks
+https://github.com/user-attachments/assets/99d6f1d1-f075-48c4-bc9d-696f1b19bd90
 
 ## Installation
 [Precompiled binaries are available for Windows, macOS and Linux.](https://github.com/Seebass22/terminal-toys/releases)
