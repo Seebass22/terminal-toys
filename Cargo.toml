@@ -11,6 +11,7 @@ categories = ["command-line-utilities"]
 
 [dependencies]
 clap = { version = "4.5.26", features = ["derive"] }
+clap_complete = "4.6.10"
 color-eyre = "0.6.3"
 crossterm = "0.29.0"
 glam = "0.29.2"

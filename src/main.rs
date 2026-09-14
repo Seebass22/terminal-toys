@@ -13,7 +13,8 @@ mod utils;
 
 use color_eyre::Result;
 
-use clap::{Parser, Subcommand};
+use clap::{CommandFactory, Parser, Subcommand};
+use clap_complete::{Generator, Shell};
 use ratatui::symbols::Marker;
 
 #[derive(Parser, Debug)]
@@ -286,11 +287,19 @@ enum Commands {
         #[arg(short, long, value_name = "POWER", default_value_t = 3.0)]
         velocity_offset: f64,
     },
+    Completion {
+        shell: Shell,
+    },
 }
 
 fn main() -> Result<()> {
     color_eyre::install()?;
     let cli = Cli::parse();
+    if let Commands::Completion { shell } = cli.command {
+        let mut cmd = Cli::command();
+        print_completions(shell, &mut cmd);
+        return Ok(());
+    }
     let terminal = ratatui::init();
     let size = terminal.size().unwrap();
     let app_result = match &cli.command {
@@ -460,7 +469,21 @@ fn main() -> Result<()> {
             *velocity_offset,
         )
         .run(terminal),
+        Commands::Completion { shell: _shell } => unreachable!(),
     };
     ratatui::restore();
     app_result
+}
+
+fn print_completions<G: Generator>(generator: G, cmd: &mut clap::Command) {
+    // workaround for https://github.com/clap-rs/clap/issues/6421
+    let cmd_name = cmd.get_name().to_owned();
+    let cmd_name_without_hyphen = cmd_name.replace("-", "_");
+    clap_complete::generate(
+        generator,
+        cmd,
+        cmd_name_without_hyphen.clone(),
+        &mut std::io::stdout(),
+    );
+    println!("complete -F _{cmd_name_without_hyphen} {cmd_name}");
 }
