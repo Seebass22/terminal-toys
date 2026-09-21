@@ -13,9 +13,37 @@ mod utils;
 
 use color_eyre::Result;
 
-use clap::{CommandFactory, Parser, Subcommand};
+use clap::{CommandFactory, Parser, Subcommand, ValueEnum};
 use clap_complete::{Generator, Shell};
 use ratatui::symbols::Marker;
+
+// needed to derive ValueEnum
+#[derive(Debug, Clone, Copy, ValueEnum)]
+enum MarkerType {
+    Braille,
+    Dot,
+    Bar,
+    Block,
+    HalfBlock,
+    Quadrant,
+    Sextant,
+    Octant,
+}
+
+impl From<&MarkerType> for Marker {
+    fn from(value: &MarkerType) -> Self {
+        match *value {
+            MarkerType::Braille => Marker::Braille,
+            MarkerType::Dot => Marker::Dot,
+            MarkerType::Bar => Marker::Bar,
+            MarkerType::Block => Marker::Block,
+            MarkerType::HalfBlock => Marker::HalfBlock,
+            MarkerType::Quadrant => Marker::Quadrant,
+            MarkerType::Sextant => Marker::Sextant,
+            MarkerType::Octant => Marker::Octant,
+        }
+    }
+}
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -28,9 +56,8 @@ struct Cli {
 enum Commands {
     /// Bouncy balls!
     Balls {
-        /// Marker type (Braille, Dot, Bar, Block, HalfBlock, Quadrant, Sextant, Octant)
-        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
-        marker: Marker,
+        #[arg(short, long, value_name = "TYPE", value_enum, default_value_t = MarkerType::Braille)]
+        marker: MarkerType,
 
         /// Number of balls to spawn
         #[arg(short = 'n', long, value_name = "BALLS", default_value_t = 50)]
@@ -38,9 +65,8 @@ enum Commands {
     },
     /// 3d pipe screensaver
     Pipes3d {
-        /// Marker type (Braille, Dot, Bar, Block, HalfBlock, Quadrant, Sextant, Octant)
-        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
-        marker: Marker,
+        #[arg(short, long, value_name = "TYPE", value_enum, default_value_t = MarkerType::Braille)]
+        marker: MarkerType,
 
         /// Number of segments to generate before reset
         #[arg(short = 'n', long, value_name = "SEGMENTS", default_value_t = 2000)]
@@ -67,9 +93,8 @@ enum Commands {
     },
     /// Lines that split after a while
     Splits {
-        /// Marker type (Braille, Dot, Bar, Block, HalfBlock, Quadrant, Sextant, Octant)
-        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
-        marker: Marker,
+        #[arg(short, long, value_name = "TYPE", value_enum, default_value_t = MarkerType::Braille)]
+        marker: MarkerType,
 
         /// Lines have a random rotation
         #[arg(short, long, default_value_t = false)]
@@ -84,9 +109,8 @@ enum Commands {
     },
     /// Game of life
     Life {
-        /// Marker type (Braille, Dot, Bar, Block, HalfBlock, Quadrant, Sextant, Octant)
-        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::HalfBlock)]
-        marker: Marker,
+        #[arg(short, long, value_name = "TYPE", value_enum, default_value_t = MarkerType::HalfBlock)]
+        marker: MarkerType,
 
         /// Width of board (default: terminal width)
         #[arg(short, long, value_name = "WIDTH")]
@@ -102,9 +126,8 @@ enum Commands {
     },
     /// Falling sand
     Sand {
-        /// Marker type (Braille, Dot, Bar, Block, HalfBlock, Quadrant, Sextant, Octant)
-        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::HalfBlock)]
-        marker: Marker,
+        #[arg(short, long, value_name = "TYPE", value_enum, default_value_t = MarkerType::HalfBlock)]
+        marker: MarkerType,
 
         /// RNG seed
         #[arg(short, long, value_name = "SEED", default_value_t = 0)]
@@ -140,9 +163,8 @@ enum Commands {
     },
     /// Rotating tunnel
     Tunnel {
-        /// Marker type (Braille, Dot, Bar, Block, HalfBlock, Quadrant, Sextant, Octant)
-        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::HalfBlock)]
-        marker: Marker,
+        #[arg(short, long, value_name = "TYPE", value_enum, default_value_t = MarkerType::HalfBlock)]
+        marker: MarkerType,
 
         /// Number of colors
         #[arg(short, long, value_name = "N", default_value_t = 16)]
@@ -162,9 +184,8 @@ enum Commands {
     },
     /// Langton's Ant
     Ant {
-        /// Marker type (Braille, Dot, Bar, Block, HalfBlock, Quadrant, Sextant, Octant)
-        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::HalfBlock)]
-        marker: Marker,
+        #[arg(short, long, value_name = "TYPE", value_enum, default_value_t = MarkerType::HalfBlock)]
+        marker: MarkerType,
 
         /// Width of board (default: terminal width)
         #[arg(short, long, value_name = "WIDTH")]
@@ -200,9 +221,8 @@ enum Commands {
     },
     /// Bubble universe by A-na5 / ｱ_ﾅ
     Bubble {
-        /// Marker type (Braille, Dot, Bar, Block, HalfBlock, Quadrant, Sextant, Octant)
-        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::HalfBlock)]
-        marker: Marker,
+        #[arg(short, long, value_name = "TYPE", value_enum, default_value_t = MarkerType::HalfBlock)]
+        marker: MarkerType,
 
         /// Parameter a
         #[arg(short, value_name = "N", default_value_t = 30)]
@@ -218,9 +238,8 @@ enum Commands {
     },
     /// Rotating sine wave cube
     Cube {
-        /// Marker type (Braille, Dot, Bar, Block, HalfBlock, Quadrant, Sextant, Octant)
-        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
-        marker: Marker,
+        #[arg(short, long, value_name = "TYPE", value_enum, default_value_t = MarkerType::Braille)]
+        marker: MarkerType,
 
         #[arg(short, long, value_name = "MILLISECONDS", default_value_t = 8)]
         tick_rate: u64,
@@ -256,9 +275,8 @@ enum Commands {
     },
     /// Sphere made out of shifting rings
     Rings {
-        /// Marker type (Braille, Dot, Bar, Block, HalfBlock, Quadrant, Sextant, Octant)
-        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
-        marker: Marker,
+        #[arg(short, long, value_name = "TYPE", value_enum, default_value_t = MarkerType::Braille)]
+        marker: MarkerType,
 
         #[arg(short, long, value_name = "MILLISECONDS", default_value_t = 8)]
         tick_rate: u64,
@@ -299,9 +317,8 @@ enum Commands {
     },
     /// Explosions!
     Sparks {
-        /// Marker type (Braille, Dot, Bar, Block, HalfBlock, Quadrant, Sextant, Octant)
-        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
-        marker: Marker,
+        #[arg(short, long, value_name = "TYPE", value_enum, default_value_t = MarkerType::Braille)]
+        marker: MarkerType,
 
         /// Number of sparks per explosion
         #[arg(short = 'n', long, value_name = "SPARKS", default_value_t = 360)]
@@ -344,7 +361,7 @@ fn main() -> Result<()> {
     let size = terminal.size().unwrap();
     let app_result = match &cli.command {
         Commands::Balls { marker, max_balls } => {
-            balls::App::new(size.width, size.height, *marker, *max_balls).run(terminal)
+            balls::App::new(size.width, size.height, marker.into(), *max_balls).run(terminal)
         }
         Commands::Pipes3d {
             marker,
@@ -357,7 +374,7 @@ fn main() -> Result<()> {
         } => pipes3d::App::new(
             size.width,
             size.height,
-            *marker,
+            marker.into(),
             *max_segments,
             *orthographic,
             *rotate,
@@ -371,7 +388,7 @@ fn main() -> Result<()> {
         } => splits::App::new(
             size.width,
             size.height,
-            *marker,
+            marker.into(),
             *rotate,
             *max_walkers,
             *seed,
@@ -382,7 +399,9 @@ fn main() -> Result<()> {
             seed,
             n,
             width,
-        } => life::App::new(size.width, size.height, *marker, *seed, *n, *width).run(terminal),
+        } => {
+            life::App::new(size.width, size.height, marker.into(), *seed, *n, *width).run(terminal)
+        }
         Commands::Sand {
             marker,
             seed,
@@ -396,7 +415,7 @@ fn main() -> Result<()> {
         } => sand::App::new(
             size.width,
             size.height,
-            *marker,
+            marker.into(),
             *seed,
             *speed,
             *obstacles,
@@ -416,7 +435,7 @@ fn main() -> Result<()> {
         } => tunnel::App::new(
             size.width,
             size.height,
-            *marker,
+            marker.into(),
             *n_colors,
             *speed,
             *depth,
@@ -436,7 +455,7 @@ fn main() -> Result<()> {
         } => ant::App::new(
             size.width,
             size.height,
-            *marker,
+            marker.into(),
             *speed,
             *width,
             *n_colors,
@@ -452,7 +471,8 @@ fn main() -> Result<()> {
             n_colors,
             a,
             b,
-        } => bubble::App::new(size.width, size.height, *marker, *n_colors, *a, *b).run(terminal),
+        } => bubble::App::new(size.width, size.height, marker.into(), *n_colors, *a, *b)
+            .run(terminal),
         Commands::Cube {
             marker,
             tick_rate,
@@ -467,7 +487,7 @@ fn main() -> Result<()> {
         } => cube::App::new(
             size.width,
             size.height,
-            *marker,
+            marker.into(),
             *orthographic,
             *x_rotation_speed,
             *y_rotation_speed,
@@ -492,7 +512,7 @@ fn main() -> Result<()> {
         } => rings::App::new(
             size.width,
             size.height,
-            *marker,
+            marker.into(),
             *orthographic,
             *x_rotation_speed,
             *y_rotation_speed,
@@ -514,7 +534,7 @@ fn main() -> Result<()> {
         } => sparks::App::new(
             size.width,
             size.height,
-            *marker,
+            marker.into(),
             *n_sparks,
             *seed,
             *lifetime,
