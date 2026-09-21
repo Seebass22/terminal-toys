@@ -20,10 +20,6 @@ use ratatui::symbols::Marker;
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Cli {
-    /// Marker type (Braille, Dot, Bar, Block, HalfBlock, Quadrant, Sextant, Octant)
-    #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille, global = true)]
-    marker: Marker,
-
     #[command(subcommand)]
     command: Commands,
 }
@@ -32,12 +28,20 @@ struct Cli {
 enum Commands {
     /// Bouncy balls!
     Balls {
+        /// Marker type (Braille, Dot, Bar, Block, HalfBlock, Quadrant, Sextant, Octant)
+        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
+        marker: Marker,
+
         /// Number of balls to spawn
         #[arg(short = 'n', long, value_name = "BALLS", default_value_t = 50)]
         max_balls: u16,
     },
     /// 3d pipe screensaver
     Pipes3d {
+        /// Marker type (Braille, Dot, Bar, Block, HalfBlock, Quadrant, Sextant, Octant)
+        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
+        marker: Marker,
+
         /// Number of segments to generate before reset
         #[arg(short = 'n', long, value_name = "SEGMENTS", default_value_t = 2000)]
         max_segments: u32,
@@ -63,6 +67,10 @@ enum Commands {
     },
     /// Lines that split after a while
     Splits {
+        /// Marker type (Braille, Dot, Bar, Block, HalfBlock, Quadrant, Sextant, Octant)
+        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
+        marker: Marker,
+
         /// Lines have a random rotation
         #[arg(short, long, default_value_t = false)]
         rotate: bool,
@@ -76,6 +84,10 @@ enum Commands {
     },
     /// Game of life
     Life {
+        /// Marker type (Braille, Dot, Bar, Block, HalfBlock, Quadrant, Sextant, Octant)
+        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::HalfBlock)]
+        marker: Marker,
+
         /// Width of board (default: terminal width)
         #[arg(short, long, value_name = "WIDTH")]
         width: Option<usize>,
@@ -90,6 +102,10 @@ enum Commands {
     },
     /// Falling sand
     Sand {
+        /// Marker type (Braille, Dot, Bar, Block, HalfBlock, Quadrant, Sextant, Octant)
+        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::HalfBlock)]
+        marker: Marker,
+
         /// RNG seed
         #[arg(short, long, value_name = "SEED", default_value_t = 0)]
         seed: u128,
@@ -124,6 +140,10 @@ enum Commands {
     },
     /// Rotating tunnel
     Tunnel {
+        /// Marker type (Braille, Dot, Bar, Block, HalfBlock, Quadrant, Sextant, Octant)
+        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::HalfBlock)]
+        marker: Marker,
+
         /// Number of colors
         #[arg(short, long, value_name = "N", default_value_t = 16)]
         n_colors: u8,
@@ -142,6 +162,10 @@ enum Commands {
     },
     /// Langton's Ant
     Ant {
+        /// Marker type (Braille, Dot, Bar, Block, HalfBlock, Quadrant, Sextant, Octant)
+        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::HalfBlock)]
+        marker: Marker,
+
         /// Width of board (default: terminal width)
         #[arg(short, long, value_name = "WIDTH")]
         width: Option<usize>,
@@ -176,6 +200,10 @@ enum Commands {
     },
     /// Bubble universe by A-na5 / ｱ_ﾅ
     Bubble {
+        /// Marker type (Braille, Dot, Bar, Block, HalfBlock, Quadrant, Sextant, Octant)
+        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::HalfBlock)]
+        marker: Marker,
+
         /// Parameter a
         #[arg(short, value_name = "N", default_value_t = 30)]
         a: u32,
@@ -190,6 +218,10 @@ enum Commands {
     },
     /// Rotating sine wave cube
     Cube {
+        /// Marker type (Braille, Dot, Bar, Block, HalfBlock, Quadrant, Sextant, Octant)
+        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
+        marker: Marker,
+
         #[arg(short, long, value_name = "MILLISECONDS", default_value_t = 8)]
         tick_rate: u64,
 
@@ -224,6 +256,10 @@ enum Commands {
     },
     /// Sphere made out of shifting rings
     Rings {
+        /// Marker type (Braille, Dot, Bar, Block, HalfBlock, Quadrant, Sextant, Octant)
+        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
+        marker: Marker,
+
         #[arg(short, long, value_name = "MILLISECONDS", default_value_t = 8)]
         tick_rate: u64,
 
@@ -263,6 +299,10 @@ enum Commands {
     },
     /// Explosions!
     Sparks {
+        /// Marker type (Braille, Dot, Bar, Block, HalfBlock, Quadrant, Sextant, Octant)
+        #[arg(short, long, value_name = "TYPE", default_value_t = Marker::Braille)]
+        marker: Marker,
+
         /// Number of sparks per explosion
         #[arg(short = 'n', long, value_name = "SPARKS", default_value_t = 360)]
         n_sparks: usize,
@@ -303,10 +343,11 @@ fn main() -> Result<()> {
     let terminal = ratatui::init();
     let size = terminal.size().unwrap();
     let app_result = match &cli.command {
-        Commands::Balls { max_balls } => {
-            balls::App::new(size.width, size.height, cli.marker, *max_balls).run(terminal)
+        Commands::Balls { marker, max_balls } => {
+            balls::App::new(size.width, size.height, *marker, *max_balls).run(terminal)
         }
         Commands::Pipes3d {
+            marker,
             max_segments,
             tick_rate,
             seed,
@@ -316,29 +357,34 @@ fn main() -> Result<()> {
         } => pipes3d::App::new(
             size.width,
             size.height,
-            cli.marker,
+            *marker,
             *max_segments,
             *orthographic,
             *rotate,
         )
         .run(terminal, *tick_rate, *seed, *camera_speed),
         Commands::Splits {
+            marker,
             rotate,
             max_walkers,
             seed,
         } => splits::App::new(
             size.width,
             size.height,
-            cli.marker,
+            *marker,
             *rotate,
             *max_walkers,
             *seed,
         )
         .run(terminal),
-        Commands::Life { seed, n, width } => {
-            life::App::new(size.width, size.height, cli.marker, *seed, *n, *width).run(terminal)
-        }
+        Commands::Life {
+            marker,
+            seed,
+            n,
+            width,
+        } => life::App::new(size.width, size.height, *marker, *seed, *n, *width).run(terminal),
         Commands::Sand {
+            marker,
             seed,
             speed,
             obstacles,
@@ -350,7 +396,7 @@ fn main() -> Result<()> {
         } => sand::App::new(
             size.width,
             size.height,
-            cli.marker,
+            *marker,
             *seed,
             *speed,
             *obstacles,
@@ -362,6 +408,7 @@ fn main() -> Result<()> {
         )
         .run(terminal),
         Commands::Tunnel {
+            marker,
             n_colors,
             speed,
             depth,
@@ -369,7 +416,7 @@ fn main() -> Result<()> {
         } => tunnel::App::new(
             size.width,
             size.height,
-            cli.marker,
+            *marker,
             *n_colors,
             *speed,
             *depth,
@@ -377,6 +424,7 @@ fn main() -> Result<()> {
         )
         .run(terminal),
         Commands::Ant {
+            marker,
             speed,
             width,
             n_colors,
@@ -388,7 +436,7 @@ fn main() -> Result<()> {
         } => ant::App::new(
             size.width,
             size.height,
-            cli.marker,
+            *marker,
             *speed,
             *width,
             *n_colors,
@@ -399,10 +447,14 @@ fn main() -> Result<()> {
             *seed,
         )
         .run(terminal),
-        Commands::Bubble { n_colors, a, b } => {
-            bubble::App::new(size.width, size.height, cli.marker, *n_colors, *a, *b).run(terminal)
-        }
+        Commands::Bubble {
+            marker,
+            n_colors,
+            a,
+            b,
+        } => bubble::App::new(size.width, size.height, *marker, *n_colors, *a, *b).run(terminal),
         Commands::Cube {
+            marker,
             tick_rate,
             orthographic,
             x_rotation_speed,
@@ -415,7 +467,7 @@ fn main() -> Result<()> {
         } => cube::App::new(
             size.width,
             size.height,
-            cli.marker,
+            *marker,
             *orthographic,
             *x_rotation_speed,
             *y_rotation_speed,
@@ -427,6 +479,7 @@ fn main() -> Result<()> {
         )
         .run(terminal, *tick_rate),
         Commands::Rings {
+            marker,
             tick_rate,
             orthographic,
             x_rotation_speed,
@@ -439,7 +492,7 @@ fn main() -> Result<()> {
         } => rings::App::new(
             size.width,
             size.height,
-            cli.marker,
+            *marker,
             *orthographic,
             *x_rotation_speed,
             *y_rotation_speed,
@@ -451,6 +504,7 @@ fn main() -> Result<()> {
         )
         .run(terminal, *tick_rate),
         Commands::Sparks {
+            marker,
             n_sparks,
             seed,
             lifetime,
@@ -460,7 +514,7 @@ fn main() -> Result<()> {
         } => sparks::App::new(
             size.width,
             size.height,
-            cli.marker,
+            *marker,
             *n_sparks,
             *seed,
             *lifetime,
