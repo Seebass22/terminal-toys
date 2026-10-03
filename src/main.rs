@@ -90,6 +90,14 @@ enum Commands {
         /// Instead of resetting, delete earlier segments
         #[arg(short, long, default_value_t = false)]
         rotate: bool,
+
+        /// Boundary
+        #[arg(short, long, value_name = "X", default_value_t = 800)]
+        boundary: u64,
+
+        /// Static camera
+        #[arg(short, long, default_value_t = false)]
+        fixed: bool,
     },
     /// Lines that split after a while
     Splits {
@@ -371,6 +379,8 @@ fn main() -> Result<()> {
             orthographic,
             camera_speed,
             rotate,
+            boundary,
+            fixed,
         } => pipes3d::App::new(
             size.width,
             size.height,
@@ -378,6 +388,8 @@ fn main() -> Result<()> {
             *max_segments,
             *orthographic,
             *rotate,
+            *boundary,
+            *fixed,
         )
         .run(terminal, *tick_rate, *seed, *camera_speed),
         Commands::Splits {

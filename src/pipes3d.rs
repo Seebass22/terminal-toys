@@ -56,9 +56,12 @@ pub struct App {
     orthographic: bool,
     val: f64,
     rotate: bool,
+    fixed: bool,
+    boundary: f64,
 }
 
 impl App {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         terminal_width: u16,
         terminal_height: u16,
@@ -66,6 +69,8 @@ impl App {
         max_segments: u32,
         orthographic: bool,
         rotate: bool,
+        boundary: u64,
+        fixed: bool,
     ) -> Self {
         let scale_factor = terminal_height as f32 / terminal_width as f32;
         let font_scale_factor = 2.0;
@@ -84,6 +89,8 @@ impl App {
             orthographic,
             val: 0.01,
             rotate,
+            fixed,
+            boundary: boundary as f64,
         }
     }
 
@@ -103,16 +110,25 @@ impl App {
             z: 0.0,
         };
         let follow_speed = map_range(camera_speed, 0.0, 10.0, 0.0, 0.01).clamp(0.0, 1.0);
+        let unit_vectors = [
+            DVec3::new(1.0, 0.0, 0.0),
+            DVec3::new(0.0, 1.0, 0.0),
+            DVec3::new(0.0, 0.0, 1.0),
+            DVec3::new(-1.0, 0.0, 0.0),
+            DVec3::new(0.0, -1.0, 0.0),
+            DVec3::new(0.0, 0.0, -1.0),
+        ];
 
         while !self.exit {
+            // if let Some(current_point) = self.points.iter().last() {
+            //     self.debug_text = format!("{}", current_point);
+            // }
             terminal.draw(|frame| self.draw(frame))?;
             let timeout = tick_rate.saturating_sub(last_tick.elapsed());
             if event::poll(timeout)? {
                 match event::read()? {
                     Event::Key(key) => self.handle_key_press(key),
-                    Event::Resize(_columns, _rows) => {
-                        // self.debug_text = format!("{} {}", columns, rows);
-                    }
+                    Event::Resize(_columns, _rows) => {}
                     _ => (),
                 }
             }
@@ -141,17 +157,17 @@ impl App {
                     && (self.points.len() as u32) < self.max_segments
                 {
                     self.points.push(current_point);
-                    let unit_vectors = [
-                        DVec3::new(1.0, 0.0, 0.0),
-                        DVec3::new(0.0, 1.0, 0.0),
-                        DVec3::new(0.0, 0.0, 1.0),
-                        DVec3::new(-1.0, 0.0, 0.0),
-                        DVec3::new(0.0, -1.0, 0.0),
-                        DVec3::new(0.0, 0.0, -1.0),
-                    ];
-                    let n = (self.previous_index + 3 + rng.rand_range(1..5) as usize) % 6;
+                    let mut next_point = DVec3::new(100000000.0, 0.0, 0.0);
+                    let mut n = 0;
+                    while next_point.x.abs() > self.boundary
+                        || next_point.y.abs() > self.boundary
+                        || next_point.z.abs() > self.boundary
+                    {
+                        n = (self.previous_index + 3 + rng.rand_range(1..5) as usize) % 6;
+                        next_point = current_point + unit_vectors[n];
+                    }
                     self.previous_index = n;
-                    current_point += unit_vectors[n];
+                    current_point = next_point;
                 }
             }
         }
@@ -199,7 +215,10 @@ impl App {
                     let index_f = i as f64 * 0.1;
                     let color_index = ((index_f as u64 % 7) + 1) as u8;
                     for (i, point) in win.iter().enumerate() {
-                        let modified_point = *point - self.camera_position;
+                        let mut modified_point = *point;
+                        if !self.fixed {
+                            modified_point -= self.camera_position;
+                        }
                         if modified_point.z < -9.0 && !self.orthographic {
                             continue 'outer;
                         }
