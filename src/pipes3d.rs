@@ -58,6 +58,7 @@ pub struct App {
     rotate: bool,
     fixed: bool,
     boundary: f64,
+    current_rotation: f64,
 }
 
 impl App {
@@ -91,6 +92,7 @@ impl App {
             rotate,
             fixed,
             boundary: boundary as f64,
+            current_rotation: 0.0,
         }
     }
 
@@ -118,6 +120,9 @@ impl App {
             DVec3::new(0.0, -1.0, 0.0),
             DVec3::new(0.0, 0.0, -1.0),
         ];
+        if self.fixed {
+            self.current_rotation = random_rotation(&mut rng);
+        }
 
         while !self.exit {
             // if let Some(current_point) = self.points.iter().last() {
@@ -141,6 +146,7 @@ impl App {
                     } else {
                         self.reset();
                         current_point = DVec3::default();
+                        self.current_rotation = random_rotation(&mut rng);
                     }
                 }
                 let last_point = if self.points.is_empty() {
@@ -216,7 +222,9 @@ impl App {
                     let color_index = ((index_f as u64 % 7) + 1) as u8;
                     for (i, point) in win.iter().enumerate() {
                         let mut modified_point = *point;
-                        if !self.fixed {
+                        if self.fixed {
+                            modified_point = rotate_y(*point, self.current_rotation);
+                        } else {
                             modified_point -= self.camera_position;
                         }
                         if modified_point.z < -9.0 && !self.orthographic {
@@ -246,4 +254,16 @@ impl App {
                 self.playground.bottom() as f64,
             ])
     }
+}
+
+fn rotate_y(point: DVec3, angle: f64) -> DVec3 {
+    let s = angle.sin();
+    let c = angle.cos();
+    let x = point.x * c - point.z * s;
+    let z = point.x * s + point.z * c;
+    DVec3::new(x, point.y, z)
+}
+
+fn random_rotation(rng: &mut oorandom::Rand32) -> f64 {
+    -0.5 * std::f64::consts::PI + (rng.rand_float() * std::f32::consts::PI) as f64
 }
