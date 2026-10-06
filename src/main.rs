@@ -63,7 +63,7 @@ enum Commands {
         #[arg(short = 'n', long, value_name = "BALLS", default_value_t = 50)]
         max_balls: u16,
     },
-    /// 3d pipe screensaver
+    /// 3d pipes with a follow camera
     Pipes3d {
         #[arg(short, long, value_name = "TYPE", value_enum, default_value_t = MarkerType::Braille)]
         marker: MarkerType,
@@ -90,18 +90,34 @@ enum Commands {
         /// Instead of resetting, delete earlier segments
         #[arg(short, long, default_value_t = false)]
         rotate: bool,
+    },
+    /// 3d pipes windows XP/95 style
+    PipesXp {
+        #[arg(short, long, value_name = "TYPE", value_enum, default_value_t = MarkerType::Braille)]
+        marker: MarkerType,
+
+        /// Number of segments to generate before reset
+        #[arg(short = 'n', long, value_name = "SEGMENTS", default_value_t = 2000)]
+        max_segments: u32,
+
+        #[arg(short, long, value_name = "MILLISECONDS", default_value_t = 8)]
+        tick_rate: u64,
+
+        /// RNG seed
+        #[arg(short, long, value_name = "SEED", default_value_t = 99)]
+        seed: u64,
+
+        /// Instead of resetting, delete earlier segments
+        #[arg(short, long, default_value_t = false)]
+        rotate: bool,
 
         /// Boundary
-        #[arg(short, long, value_name = "X", default_value_t = 800)]
+        #[arg(short, long, value_name = "X", default_value_t = 30)]
         boundary: u64,
 
-        /// Static camera
-        #[arg(short, long, default_value_t = false)]
-        fixed: bool,
-
         /// Number of pipes to generate
-        #[arg(short = 'p', long, value_name = "N", default_value_t = 1)]
-        n_pipes: usize,
+        #[arg(short = 'p', long, value_name = "N", default_value_t = 3, value_parser = clap::value_parser!(u16).range(1..256))]
+        n_pipes: u16,
     },
     /// Lines that split after a while
     Splits {
@@ -383,9 +399,6 @@ fn main() -> Result<()> {
             orthographic,
             camera_speed,
             rotate,
-            boundary,
-            fixed,
-            n_pipes,
         } => pipes3d::App::new(
             size.width,
             size.height,
@@ -393,11 +406,31 @@ fn main() -> Result<()> {
             *max_segments,
             *orthographic,
             *rotate,
-            *boundary,
-            *fixed,
-            *n_pipes,
+            1000,
+            false,
+            1,
         )
         .run(terminal, *tick_rate, *seed, *camera_speed),
+        Commands::PipesXp {
+            marker,
+            max_segments,
+            tick_rate,
+            seed,
+            rotate,
+            boundary,
+            n_pipes,
+        } => pipes3d::App::new(
+            size.width,
+            size.height,
+            marker.into(),
+            *max_segments,
+            false,
+            *rotate,
+            *boundary,
+            true,
+            *n_pipes as usize,
+        )
+        .run(terminal, *tick_rate, *seed, 0.0),
         Commands::Splits {
             marker,
             rotate,
