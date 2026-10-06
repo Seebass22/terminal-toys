@@ -98,6 +98,10 @@ enum Commands {
         /// Static camera
         #[arg(short, long, default_value_t = false)]
         fixed: bool,
+
+        /// Number of pipes to generate
+        #[arg(short = 'p', long, value_name = "N", default_value_t = 1)]
+        n_pipes: usize,
     },
     /// Lines that split after a while
     Splits {
@@ -381,6 +385,7 @@ fn main() -> Result<()> {
             rotate,
             boundary,
             fixed,
+            n_pipes,
         } => pipes3d::App::new(
             size.width,
             size.height,
@@ -390,6 +395,7 @@ fn main() -> Result<()> {
             *rotate,
             *boundary,
             *fixed,
+            *n_pipes,
         )
         .run(terminal, *tick_rate, *seed, *camera_speed),
         Commands::Splits {

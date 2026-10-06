@@ -45,11 +45,11 @@ impl ToScreenPos for DVec3 {
 
 pub struct App {
     exit: bool,
-    points: Vec<DVec3>,
+    points: Vec<Vec<DVec3>>,
     playground: Rect,
     tick_count: u64,
     camera_position: DVec3,
-    previous_index: usize,
+    previous_index: Vec<usize>,
     debug_text: String,
     marker: Marker,
     max_segments: u32,
@@ -59,6 +59,7 @@ pub struct App {
     fixed: bool,
     boundary: f64,
     current_rotation: f64,
+    n_lines: usize,
 }
 
 impl App {
@@ -72,20 +73,28 @@ impl App {
         rotate: bool,
         boundary: u64,
         fixed: bool,
+        n_lines: usize,
     ) -> Self {
         let scale_factor = terminal_height as f32 / terminal_width as f32;
         let font_scale_factor = 2.0;
         let width = 200.0;
         let height = width * scale_factor * font_scale_factor;
+        let mut points = Vec::new();
+        let mut previous_index = Vec::new();
+        for _ in 0..n_lines {
+            points.push(Vec::with_capacity(max_segments as usize));
+            previous_index.push(0);
+        }
+
         Self {
             exit: false,
             playground: Rect::new(0, 0, width as u16, height as u16),
-            points: Vec::with_capacity(max_segments as usize),
+            points,
             tick_count: 0,
             camera_position: DVec3::default(),
             marker,
             debug_text: String::new(),
-            previous_index: 0,
+            previous_index,
             max_segments,
             orthographic,
             val: 0.01,
@@ -93,6 +102,7 @@ impl App {
             fixed,
             boundary: boundary as f64,
             current_rotation: 0.0,
+            n_lines,
         }
     }
 
@@ -106,11 +116,6 @@ impl App {
         let tick_rate = Duration::from_millis(tick_rate);
         let mut last_tick = Instant::now();
         let mut rng = oorandom::Rand32::new(seed);
-        let mut current_point = DVec3 {
-            x: 0.0,
-            y: 0.0,
-            z: 0.0,
-        };
         let follow_speed = map_range(camera_speed, 0.0, 10.0, 0.0, 0.01).clamp(0.0, 1.0);
         let unit_vectors = [
             DVec3::new(1.0, 0.0, 0.0),
@@ -122,6 +127,10 @@ impl App {
         ];
         if self.fixed {
             self.current_rotation = random_rotation(&mut rng);
+        }
+        let mut current_point = Vec::new();
+        for _ in 0..self.n_lines {
+            current_point.push(DVec3::ZERO);
         }
 
         while !self.exit {
@@ -137,43 +146,47 @@ impl App {
                     _ => (),
                 }
             }
-
             if last_tick.elapsed() >= tick_rate {
-                if self.points.len() as u32 >= self.max_segments {
-                    if self.rotate {
-                        self.points.rotate_left(1);
-                        self.points.pop();
-                    } else {
-                        self.reset();
-                        current_point = DVec3::default();
-                        self.current_rotation = random_rotation(&mut rng);
-                    }
-                }
-                let last_point = if self.points.is_empty() {
-                    DVec3::default()
-                } else {
-                    *self.points.last().unwrap()
-                };
-
-                let direction = last_point - self.camera_position;
-                self.camera_position += direction * follow_speed;
                 self.on_tick();
-                last_tick = Instant::now();
-                if self.tick_count.is_multiple_of(2)
-                    && (self.points.len() as u32) < self.max_segments
-                {
-                    self.points.push(current_point);
-                    let mut next_point = DVec3::new(100000000.0, 0.0, 0.0);
-                    let mut n = 0;
-                    while next_point.x.abs() > self.boundary
-                        || next_point.y.abs() > self.boundary
-                        || next_point.z.abs() > self.boundary
-                    {
-                        n = (self.previous_index + 3 + rng.rand_range(1..5) as usize) % 6;
-                        next_point = current_point + unit_vectors[n];
+
+                if self.points[0].len() as u32 >= self.max_segments && !self.rotate {
+                    self.reset();
+                    for p in current_point.iter_mut() {
+                        *p = DVec3::ZERO;
                     }
-                    self.previous_index = n;
-                    current_point = next_point;
+                    self.current_rotation = random_rotation(&mut rng);
+                }
+
+                for (i, points) in self.points.iter_mut().enumerate() {
+                    if points.len() as u32 >= self.max_segments && self.rotate {
+                        points.rotate_left(1);
+                        points.pop();
+                    }
+                    let last_point = if points.is_empty() {
+                        DVec3::default()
+                    } else {
+                        *points.last().unwrap()
+                    };
+
+                    let direction = last_point - self.camera_position;
+                    self.camera_position += direction * follow_speed;
+                    last_tick = Instant::now();
+                    if self.tick_count.is_multiple_of(2)
+                        && (points.len() as u32) < self.max_segments
+                    {
+                        points.push(current_point[i]);
+                        let mut next_point = DVec3::new(100000000.0, 0.0, 0.0);
+                        let mut n = 0;
+                        while next_point.x.abs() > self.boundary
+                            || next_point.y.abs() > self.boundary
+                            || next_point.z.abs() > self.boundary
+                        {
+                            n = (self.previous_index[i] + 3 + rng.rand_range(1..5) as usize) % 6;
+                            next_point = current_point[i] + unit_vectors[n];
+                        }
+                        self.previous_index[i] = n;
+                        current_point[i] = next_point;
+                    }
                 }
             }
         }
@@ -181,7 +194,9 @@ impl App {
     }
 
     fn reset(&mut self) {
-        self.points.clear();
+        for points in self.points.iter_mut() {
+            points.clear();
+        }
         self.camera_position = DVec3::default();
     }
 
@@ -216,33 +231,40 @@ impl App {
         Canvas::default()
             .marker(self.marker)
             .paint(|ctx| {
-                'outer: for (i, win) in self.points.windows(2).enumerate() {
-                    let mut line_points: [DVec2; 2] = [DVec2::ZERO; 2];
-                    let index_f = i as f64 * 0.1;
-                    let color_index = ((index_f as u64 % 7) + 1) as u8;
-                    for (i, point) in win.iter().enumerate() {
-                        let mut modified_point = *point;
-                        if self.fixed {
-                            modified_point = rotate_y(*point, self.current_rotation);
-                        } else {
-                            modified_point -= self.camera_position;
-                        }
-                        if modified_point.z < -9.0 && !self.orthographic {
-                            continue 'outer;
-                        }
-                        if self.orthographic {
-                            line_points[i] =
-                                modified_point.to_screen_position_orthographic(self.playground);
-                        } else {
-                            line_points[i] =
-                                modified_point.to_screen_position(self.playground, self.val);
-                        }
-                    }
+                for (c, points) in self.points.iter().enumerate() {
+                    'outer: for (i, win) in points.windows(2).enumerate() {
+                        let mut line_points: [DVec2; 2] = [DVec2::ZERO; 2];
+                        let index_f = i as f64 * 0.1;
 
-                    let p0 = line_points[0];
-                    let p1 = line_points[1];
-                    let line = Line::new(p0.x, p0.y, p1.x, p1.y, Color::Indexed(color_index));
-                    ctx.draw(&line);
+                        let mut color_index = ((index_f as u64 % 7) + 1) as u8;
+                        if self.n_lines > 1 {
+                            color_index = 1 + c as u8;
+                        }
+
+                        for (i, point) in win.iter().enumerate() {
+                            let mut modified_point = *point;
+                            if self.fixed {
+                                modified_point = rotate_y(*point, self.current_rotation);
+                            } else {
+                                modified_point -= self.camera_position;
+                            }
+                            if modified_point.z < -9.0 && !self.orthographic {
+                                continue 'outer;
+                            }
+                            if self.orthographic {
+                                line_points[i] =
+                                    modified_point.to_screen_position_orthographic(self.playground);
+                            } else {
+                                line_points[i] =
+                                    modified_point.to_screen_position(self.playground, self.val);
+                            }
+                        }
+
+                        let p0 = line_points[0];
+                        let p1 = line_points[1];
+                        let line = Line::new(p0.x, p0.y, p1.x, p1.y, Color::Indexed(color_index));
+                        ctx.draw(&line);
+                    }
                 }
             })
             .x_bounds([
