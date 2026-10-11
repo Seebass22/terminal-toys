@@ -130,7 +130,12 @@ impl App {
         }
         let mut current_point = Vec::new();
         for _ in 0..self.n_lines {
-            current_point.push(DVec3::ZERO);
+            let new_point = if self.fixed {
+                random_dvec3(&mut rng, self.boundary.min(4.0))
+            } else {
+                DVec3::ZERO
+            };
+            current_point.push(new_point);
         }
 
         while !self.exit {
@@ -152,7 +157,12 @@ impl App {
                 if self.points[0].len() as u32 >= self.max_segments && !self.rotate {
                     self.reset();
                     for p in current_point.iter_mut() {
-                        *p = DVec3::ZERO;
+                        let new_point = if self.fixed {
+                            random_dvec3(&mut rng, self.boundary.min(4.0))
+                        } else {
+                            DVec3::ZERO
+                        };
+                        *p = new_point;
                     }
                     self.current_rotation = random_rotation(&mut rng);
                 }
@@ -288,4 +298,12 @@ fn rotate_y(point: DVec3, angle: f64) -> DVec3 {
 
 fn random_rotation(rng: &mut oorandom::Rand32) -> f64 {
     -0.5 * std::f64::consts::PI + (rng.rand_float() * std::f32::consts::PI) as f64
+}
+
+fn random_dvec3(rng: &mut oorandom::Rand32, boundary: f64) -> DVec3 {
+    let max = boundary as u32 * 2;
+    let x = -boundary + rng.rand_range(0..max) as f64;
+    let y = -boundary + rng.rand_range(0..max) as f64;
+    let z = -boundary + rng.rand_range(0..max) as f64;
+    DVec3::new(x, y, z)
 }
