@@ -1,3 +1,26 @@
+# v0.9.0
+## new screensaver: pipes-xp
+A variant of the pipes3d screensaver with a static camera and multiple pipes,
+similar to the Windows 95/XP 3d pipes screensaver.
+
+options:
+```
+  -p, --n-pipes <N>               Number of pipes to generate [default: 3]
+  -b, --boundary <N>              Boundary [default: 30]
+  -n, --max-segments <SEGMENTS>   Number of segments to generate before reset
+  -r, --rotate                    Instead of resetting, delete earlier segments
+```
+
+## general
+Added shell completion generation: `terminal-toys completion`
+
+Usage example (bash):
+```
+mkdir -p ~/.local/share/bash-completion/completions
+terminal-toys completion bash > ~/.local/share/bash-completion/completions/terminal-toys.bash
+```
+Then open a new terminal and try tab completing `terminal-toys` subcommands and flags.
+
 # v0.8.0
 ## new screensaver: sparks
 Sparks that bounce off the sides of the terminal
