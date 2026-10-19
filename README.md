@@ -12,7 +12,7 @@ A collection of terminal screensavers
 ### 3d pipes
 https://github.com/user-attachments/assets/e2425ca8-b1fd-46b0-895c-74e3edbf159c
 ### Multi 3d pipes
-https://github.com/user-attachments/assets/468f5f8d-b241-4e23-8b48-1d3661cb5f9c
+https://github.com/user-attachments/assets/58d25f32-79d8-481c-86d4-0e72cac7602f
 ### Bouncy balls
 https://github.com/user-attachments/assets/17bb430a-8b08-44ee-afce-faf2bcc9205d
 ### Splits
