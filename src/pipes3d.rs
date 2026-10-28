@@ -1,4 +1,4 @@
-use crate::utils::{is_quit_key, map_range};
+use crate::utils::{is_quit_key, map_range, Rotate};
 use color_eyre::Result;
 use crossterm::event::KeyEventKind;
 use glam::{DVec2, DVec3};
@@ -254,7 +254,7 @@ impl App {
                         for (i, point) in win.iter().enumerate() {
                             let mut modified_point = *point;
                             if self.fixed {
-                                modified_point = rotate_y(*point, self.current_rotation);
+                                modified_point = modified_point.rotate_y(self.current_rotation);
                             } else {
                                 modified_point -= self.camera_position;
                             }
@@ -286,14 +286,6 @@ impl App {
                 self.playground.bottom() as f64,
             ])
     }
-}
-
-fn rotate_y(point: DVec3, angle: f64) -> DVec3 {
-    let s = angle.sin();
-    let c = angle.cos();
-    let x = point.x * c - point.z * s;
-    let z = point.x * s + point.z * c;
-    DVec3::new(x, point.y, z)
 }
 
 fn random_rotation(rng: &mut oorandom::Rand32) -> f64 {

@@ -1,4 +1,4 @@
-use crate::utils::is_quit_key;
+use crate::utils::{is_quit_key, Rotate};
 use color_eyre::Result;
 use crossterm::event::KeyEventKind;
 use glam::{dvec3, DVec2, DVec3};
@@ -14,18 +14,6 @@ use ratatui::{
     DefaultTerminal, Frame,
 };
 use std::time::{Duration, Instant};
-
-const ONE_TURN_DEGREES_F64: f64 = 360.0;
-
-trait ConvertAngle {
-    fn deg_to_rad(self) -> Self;
-}
-
-impl ConvertAngle for f64 {
-    fn deg_to_rad(self) -> Self {
-        self * core::f64::consts::TAU / ONE_TURN_DEGREES_F64
-    }
-}
 
 trait ToScreenPos {
     fn to_screen_position(self, playgrground: Rect, val: f64) -> DVec2;
@@ -53,30 +41,6 @@ impl ToScreenPos for DVec3 {
             y: y + playground.bottom() as f64 * 0.5,
         }
     }
-}
-
-fn rotate_z(point: DVec3, angle: f64) -> DVec3 {
-    let s = angle.sin();
-    let c = angle.cos();
-    let x = point.x * c - point.y * s;
-    let y = point.x * s + point.y * c;
-    DVec3::new(x, y, point.z)
-}
-
-fn rotate_x(point: DVec3, angle: f64) -> DVec3 {
-    let s = angle.sin();
-    let c = angle.cos();
-    let y = point.y * c - point.z * s;
-    let z = point.y * s + point.z * c;
-    DVec3::new(point.x, y, z)
-}
-
-fn rotate_y(point: DVec3, angle: f64) -> DVec3 {
-    let s = angle.sin();
-    let c = angle.cos();
-    let x = point.x * c - point.z * s;
-    let z = point.x * s + point.z * c;
-    DVec3::new(x, point.y, z)
 }
 
 pub struct App {
@@ -121,8 +85,8 @@ impl App {
         let radius = 10.0;
         for theta in (20..180).step_by(20) {
             for phi in (0..=360).step_by(10) {
-                let theta = (theta as f64).deg_to_rad();
-                let phi = (phi as f64).deg_to_rad();
+                let theta = (theta as f64).to_radians();
+                let phi = (phi as f64).to_radians();
                 let x = radius * theta.sin() * phi.cos();
                 let y = radius * theta.sin() * phi.sin();
                 let z = radius * theta.cos();
@@ -210,9 +174,10 @@ impl App {
                         point.y += self.amplitude
                             * (self.frequency * point.z + 20.0 * self.speed * t).sin();
 
-                        let mut modified_point = rotate_x(point, t * self.x_rotation_speed);
-                        modified_point = rotate_y(modified_point, t * self.y_rotation_speed);
-                        modified_point = rotate_z(modified_point, t * self.z_rotation_speed);
+                        let mut modified_point = point
+                            .rotate_x(t * self.x_rotation_speed)
+                            .rotate_y(t * self.y_rotation_speed)
+                            .rotate_z(t * self.z_rotation_speed);
 
                         if self.orthographic {
                             line_points[i] =

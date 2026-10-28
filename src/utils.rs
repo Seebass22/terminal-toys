@@ -1,4 +1,5 @@
 use crossterm::event::{self, KeyCode, KeyModifiers};
+use glam::DVec3;
 use ratatui::symbols::Marker;
 use std::hash::{DefaultHasher, Hash, Hasher};
 
@@ -60,5 +61,37 @@ pub fn calc_board_size_scaled(
             (terminal_height * 4) as usize,
         ),
         _ => (terminal_width as usize, (terminal_height * 2) as usize),
+    }
+}
+
+pub trait Rotate {
+    fn rotate_x(self, angle: f64) -> Self;
+    fn rotate_y(self, angle: f64) -> Self;
+    fn rotate_z(self, angle: f64) -> Self;
+}
+
+impl Rotate for DVec3 {
+    fn rotate_z(self, angle: f64) -> DVec3 {
+        let s = angle.sin();
+        let c = angle.cos();
+        let x = self.x * c - self.y * s;
+        let y = self.x * s + self.y * c;
+        DVec3::new(x, y, self.z)
+    }
+
+    fn rotate_x(self, angle: f64) -> DVec3 {
+        let s = angle.sin();
+        let c = angle.cos();
+        let y = self.y * c - self.z * s;
+        let z = self.y * s + self.z * c;
+        DVec3::new(self.x, y, z)
+    }
+
+    fn rotate_y(self, angle: f64) -> DVec3 {
+        let s = angle.sin();
+        let c = angle.cos();
+        let x = self.x * c - self.z * s;
+        let z = self.x * s + self.z * c;
+        DVec3::new(x, self.y, z)
     }
 }
