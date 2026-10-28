@@ -1,5 +1,6 @@
 mod ant;
 mod balls;
+mod bounce;
 mod bubble;
 mod cube;
 mod life;
@@ -372,6 +373,11 @@ enum Commands {
         #[arg(short, long, value_name = "POWER", default_value_t = 3.0)]
         velocity_offset: f64,
     },
+    /// Like the DVD logo
+    Bounce {
+        #[arg(short, long, value_name = "TYPE", value_enum, default_value_t = MarkerType::Braille)]
+        marker: MarkerType,
+    },
     Completion {
         shell: Shell,
     },
@@ -594,6 +600,16 @@ fn main() -> Result<()> {
             *velocity_offset,
         )
         .run(terminal),
+        Commands::Bounce { marker } => bounce::App::new(
+            size.width,
+            size.height,
+            marker.into(),
+            false,
+            1.0,
+            0.5,
+            0.25,
+        )
+        .run(terminal, 8),
         Commands::Completion { shell: _shell } => unreachable!(),
     };
     ratatui::restore();
